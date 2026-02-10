@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Movie, GameState, DifficultyLevel } from '../lib/types';
-import { FAKE_MOVIES } from '../data/fakeMovies';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'PLACEHOLDER_KEY';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -12,6 +11,14 @@ export function useMovieDealer() {
     const [winner, setWinner] = useState<Movie | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Debugging: Check if API Key is loaded in production
+    useEffect(() => {
+        if (import.meta.env.PROD) {
+            console.log('Production Environment Detected');
+            console.log('TMDB API Key configured:', !!import.meta.env.VITE_TMDB_API_KEY);
+        }
+    }, []);
 
     // Game Logic State
     const [round, setRound] = useState(1);
@@ -29,6 +36,10 @@ export function useMovieDealer() {
     }, []);
 
     const fetchMoviesByDifficulty = useCallback(async (level: DifficultyLevel): Promise<Movie[]> => {
+        if (!TMDB_API_KEY || TMDB_API_KEY === 'PLACEHOLDER_KEY') {
+            throw new Error('API Key faltante o inválida.');
+        }
+
         let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&sort_by=popularity.desc&include_adult=false&page=${Math.floor(Math.random() * 5) + 1}`;
 
         if (level <= 2) {
@@ -44,8 +55,15 @@ export function useMovieDealer() {
 
         try {
             const response = await fetch(url);
-            if (!response.ok) throw new Error('API Error');
+            if (!response.ok) {
+                if (response.status === 401) throw new Error('Error 401: API Key inválida.');
+                throw new Error(`Error de API: ${response.status}`);
+            }
             const data = await response.json();
+
+            if (!data.results || data.results.length === 0) {
+                throw new Error('No se encontraron películas para este filtro.');
+            }
 
             return data.results.map((m: any) => ({
                 id: m.id,
@@ -59,7 +77,7 @@ export function useMovieDealer() {
                 genre: [] // Could map genre IDs if needed
             }));
         } catch (err) {
-            console.error(err);
+            console.error('Fetch error:', err);
             throw err;
         }
     }, []);
@@ -68,13 +86,8 @@ export function useMovieDealer() {
         setLoading(true);
         setError(null);
         try {
-            // Early exit if no API Key is configured
-            if (!TMDB_API_KEY || TMDB_API_KEY === 'PLACEHOLDER_KEY') {
-                throw new Error('No API Key');
-            }
-
             const movies = await fetchMoviesByDifficulty(difficulty);
-            if (movies.length < 5) throw new Error('Not enough movies found');
+            if (movies.length < 5) throw new Error('No hay suficientes películas configuradas.');
 
             const shuffled = [...movies].sort(() => 0.5 - Math.random());
             moviePool.current = shuffled.slice(5); // Keep rest in pool
@@ -82,20 +95,9 @@ export function useMovieDealer() {
             setGameState('playing');
             setWinner(null);
             setRound(1);
-        } catch (err) {
-            console.warn('API Error, falling back to fakeMovies:', err);
-            // Fallback to fakeMovies filtered by difficulty
-            const fallbackMovies = FAKE_MOVIES.filter(m => m.difficulty === difficulty);
-            const selectedMovies = fallbackMovies.length >= 5
-                ? fallbackMovies
-                : FAKE_MOVIES; // If not enough for this level, take any
-
-            const shuffled = [...selectedMovies].sort(() => 0.5 - Math.random());
-            moviePool.current = shuffled.slice(5);
-            setHand(shuffled.slice(0, 5));
-            setGameState('playing');
-            setWinner(null);
-            setRound(1);
+        } catch (err: any) {
+            console.error('Game Error:', err);
+            setError(err.message || 'Error desconocido al cargar películas.');
         } finally {
             setLoading(false);
         }
