@@ -11,13 +11,21 @@ interface FilterMenuProps {
 
 const GENRES = [
     { id: '28', name: 'Acción' },
-    { id: '35', name: 'Comedia' },
-    { id: '18', name: 'Drama' },
-    { id: '27', name: 'Terror' },
-    { id: '878', name: 'Sci-Fi' },
-    { id: '10749', name: 'Romance' },
-    { id: '530', name: 'Thriller' },
+    { id: '12', name: 'Aventura' },
     { id: '16', name: 'Animación' },
+    { id: '35', name: 'Comedia' },
+    { id: '80', name: 'Crimen' },
+    { id: '18', name: 'Drama' },
+    { id: '14', name: 'Fantasía' },
+    { id: '36', name: 'Historia' },
+    { id: '27', name: 'Terror' },
+    { id: '10402', name: 'Música' },
+    { id: '9648', name: 'Misterio' },
+    { id: '10749', name: 'Romance' },
+    { id: '878', name: 'Sci-Fi' },
+    { id: '53', name: 'Thriller' },
+    { id: '10752', name: 'Guerra' },
+    { id: '37', name: 'Western' },
 ];
 
 const DECADES = [
@@ -56,11 +64,17 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
     }, [personSearch]);
 
     const handleToggleGenre = (id: string) => {
-        onFiltersChange({ ...filters, genre: filters.genre === id ? undefined : id });
+        const newGenres = filters.genres.includes(id)
+            ? filters.genres.filter(g => g !== id)
+            : [...filters.genres, id];
+        onFiltersChange({ ...filters, genres: newGenres });
     };
 
     const handleToggleDecade = (id: string) => {
-        onFiltersChange({ ...filters, decade: filters.decade === id ? undefined : id });
+        const newDecades = filters.decades.includes(id)
+            ? filters.decades.filter(d => d !== id)
+            : [...filters.decades, id];
+        onFiltersChange({ ...filters, decades: newDecades });
     };
 
     return (
@@ -68,12 +82,12 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
             <h2 className="setup-title">Personaliza tu Mano</h2>
 
             <section className="filter-section">
-                <h3>Género</h3>
+                <h3>Géneros (Selecciona varios)</h3>
                 <div className="chip-group">
                     {GENRES.map(g => (
                         <button
                             key={g.id}
-                            className={`chip ${filters.genre === g.id ? 'active' : ''}`}
+                            className={`chip ${filters.genres.includes(g.id) ? 'active' : ''}`}
                             onClick={() => handleToggleGenre(g.id)}
                         >
                             {g.name}
@@ -83,12 +97,12 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
             </section>
 
             <section className="filter-section">
-                <h3>Década</h3>
+                <h3>Décadas (Selecciona varias)</h3>
                 <div className="chip-group">
                     {DECADES.map(d => (
                         <button
                             key={d.id}
-                            className={`chip ${filters.decade === d.id ? 'active' : ''}`}
+                            className={`chip ${filters.decades.includes(d.id) ? 'active' : ''}`}
                             onClick={() => handleToggleDecade(d.id)}
                         >
                             {d.name}
@@ -138,7 +152,7 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
 
             <div className="setup-actions">
                 <button className="btn-secondary" onClick={onBack}>Atrás</button>
-                <button className="btn-primary" onClick={onConfirm}>Start Game</button>
+                <button className="btn-primary" onClick={onConfirm}>Repartir Mano</button>
             </div>
         </div>
     );

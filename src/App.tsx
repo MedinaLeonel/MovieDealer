@@ -65,13 +65,23 @@ function App() {
 
             <DifficultySelector level={difficulty} onChange={setDifficulty} />
 
-            <button
-              className="btn-primary hero-cta"
-              onClick={goToConfig}
-              disabled={loading}
-            >
-              Continuar
-            </button>
+            <div className="setup-choice-group">
+              <button
+                className="btn-primary hero-cta pulse-btn"
+                onClick={dealHand}
+                disabled={loading}
+              >
+                {loading ? 'Preparando...' : 'Comenzar Juego'}
+              </button>
+
+              <button
+                className="btn-secondary hero-cta"
+                onClick={goToConfig}
+                disabled={loading}
+              >
+                Personalizar Mano
+              </button>
+            </div>
 
             {error && <div className="error-message">{error}</div>}
           </div>

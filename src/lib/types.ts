@@ -17,8 +17,8 @@ export interface Movie {
 export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'won';
 
 export interface FilterSettings {
-    genre?: string;
-    decade?: string;
+    genres: string[];
+    decades: string[];
     person?: { id: number; name: string; type: 'actor' | 'director' };
     minRating?: number;
 }

@@ -24,7 +24,7 @@ export function useMovieDealer() {
     const [round, setRound] = useState(1);
     const [streak, setStreak] = useState(0);
     const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
-    const [filters, setFilters] = useState<FilterSettings>({});
+    const [filters, setFilters] = useState<FilterSettings>({ genres: [], decades: [] });
 
     // Cache to avoid multi-fetching same difficulty in same session
     const moviePool = useRef<Movie[]>([]);
@@ -43,32 +43,40 @@ export function useMovieDealer() {
 
         let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&sort_by=popularity.desc&include_adult=false`;
 
-        // Apply Difficulty Base
+        // Apply Difficulty Base (Cognitive Thresholds)
         if (level <= 2) {
-            url += '&vote_count.gte=5000&popularity.gte=500';
+            url += '&vote_count.gte=5000&popularity.gte=500'; // High visibility
         } else if (level <= 4) {
-            url += '&vote_average.gte=7&popularity.lte=500&popularity.gte=100';
+            url += '&vote_average.gte=7&popularity.lte=800&popularity.gte=50'; // Middle ground
         } else {
-            url += '&vote_count.lte=1000&vote_average.gte=7.5&vote_count.gte=50';
+            url += '&vote_count.lte=2000&vote_average.gte=7.2&vote_count.gte=10'; // Niche / Hidden Gems
         }
 
-        // Apply Dynamic Filters
-        if (gameFilters.genre) {
-            url += `&with_genres=${gameFilters.genre}`;
+        // Apply Dynamic Multi-Filters
+        if (gameFilters.genres && gameFilters.genres.length > 0) {
+            // Join genres with | (OR) to widen the pool but still filter
+            url += `&with_genres=${gameFilters.genres.join('|')}`;
         }
-        if (gameFilters.decade) {
-            const year = parseInt(gameFilters.decade);
-            url += `&primary_release_date.gte=${year}-01-01&primary_release_date.lte=${year + 9}-12-31`;
+
+        if (gameFilters.decades && gameFilters.decades.length > 0) {
+            // Get min and max years from selected decades
+            const years = gameFilters.decades.map(d => parseInt(d));
+            const minYear = Math.min(...years);
+            const maxYear = Math.max(...years) + 9;
+            url += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
         }
+
         if (gameFilters.person) {
             url += `&with_people=${gameFilters.person.id}`;
         }
+
         if (gameFilters.minRating) {
             url += `&vote_average.gte=${gameFilters.minRating}`;
         }
 
-        // Randomize page slightly to avoid repetition
-        url += `&page=${Math.floor(Math.random() * 3) + 1}`;
+        // Randomize page to ensure hand is unique every time
+        const randomPage = Math.floor(Math.random() * 2) + 1;
+        url += `&page=${randomPage}`;
 
         try {
             const response = await fetch(url);
@@ -79,8 +87,7 @@ export function useMovieDealer() {
             const data = await response.json();
 
             if (!data.results || data.results.length === 0) {
-                // If specific filters returned nothing, try without some or warn
-                throw new Error('No se encontraron películas para esta combinación de filtros.');
+                throw new Error('El Dealer no encontró nada con estos filtros tan específicos. Prueba a quitarlos o cambiarlos.');
             }
 
             return data.results.map((m: any) => ({
@@ -108,7 +115,7 @@ export function useMovieDealer() {
         setGameState('dealing');
         try {
             const movies = await fetchMoviesByDifficulty(difficulty, filters);
-            if (movies.length < 5) throw new Error('No hay suficientes películas con estos filtros. Intenta suavizar tu búsqueda.');
+            if (movies.length < 5) throw new Error('Casi... hay películas pero no suficientes para una mano. Intenta abrir más los filtros.');
 
             const shuffled = [...movies].sort(() => 0.5 - Math.random());
             moviePool.current = shuffled.slice(5); // Keep rest in pool
@@ -119,7 +126,7 @@ export function useMovieDealer() {
         } catch (err: any) {
             console.error('Game Error:', err);
             setError(err.message || 'Error desconocido al cargar películas.');
-            setGameState('configuring'); // Fallback to config
+            setGameState('configuring');
         } finally {
             setLoading(false);
         }
@@ -170,7 +177,7 @@ export function useMovieDealer() {
         setWinner(null);
         setRound(1);
         moviePool.current = [];
-        setFilters({});
+        setFilters({ genres: [], decades: [] });
     }
 
     return {

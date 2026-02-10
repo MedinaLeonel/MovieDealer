@@ -257,6 +257,33 @@
     }
 }
 
+.setup-choice-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.pulse-btn {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(var(--primary-rgb), 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+    }
+}
+
 .error-message {
     margin-top: 1rem;
     color: var(--accent);
