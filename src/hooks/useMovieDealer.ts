@@ -68,6 +68,11 @@ export function useMovieDealer() {
         setLoading(true);
         setError(null);
         try {
+            // Early exit if no API Key is configured
+            if (!TMDB_API_KEY || TMDB_API_KEY === 'PLACEHOLDER_KEY') {
+                throw new Error('No API Key');
+            }
+
             const movies = await fetchMoviesByDifficulty(difficulty);
             if (movies.length < 5) throw new Error('Not enough movies found');
 
