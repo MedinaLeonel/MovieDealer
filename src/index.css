@@ -98,36 +98,62 @@ button {
     font-family: inherit;
 }
 
+.btn-primary,
+.btn-danger {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: var(--btn-radius);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
 .btn-primary {
     background: var(--primary);
     color: var(--bg-color);
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    border-radius: var(--btn-radius);
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.btn-primary:disabled {
-    opacity: 0.5;
+.btn-danger {
+    background: var(--accent);
+    color: white;
+}
+
+
+button:disabled {
+    opacity: 0.3;
     cursor: not-allowed;
-    transform: none;
+    filter: grayscale(1);
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+button:not(:disabled):hover {
+    transform: translateY(-4px);
+    filter: brightness(1.1);
 }
 
 .btn-primary:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3);
+    box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.4);
+}
+
+.btn-danger:not(:disabled):hover {
+    box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
 }
 
 .btn-secondary {
     background: transparent;
     color: var(--primary);
     border: 2px solid rgba(var(--primary-rgb), 0.3);
-    padding: 0.9rem 1.8rem;
+    padding: 1rem 2rem;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: var(--btn-radius);
     transition: all 0.2s;
 }
@@ -135,21 +161,6 @@ button {
 .btn-secondary:hover {
     border-color: var(--primary);
     background: rgba(var(--primary-rgb), 0.1);
-}
-
-.btn-danger {
-    background: rgba(229, 9, 20, 0.2);
-    color: #ff5f5f;
-    border: 1px solid var(--accent);
-    padding: 0.8rem 1.5rem;
-    border-radius: var(--radius);
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.btn-danger:hover {
-    background: var(--accent);
-    color: white;
 }
 
 /* Theme Selector Styles */

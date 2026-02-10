@@ -63,29 +63,120 @@
     gap: 2rem;
 }
 
-.status-bar {
-    font-size: 1.1rem;
+.game-status-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.level-badge {
+    background: var(--primary);
+    color: var(--bg-color);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.round-indicator {
+    display: flex;
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+}
+
+.round-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.3;
+    transition: all 0.4s ease;
+}
+
+.round-step.active {
+    opacity: 1;
     color: var(--primary);
+}
+
+.round-step.current .step-num {
+    background: var(--primary);
+    color: var(--bg-color);
+    transform: scale(1.2);
+}
+
+.step-num {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--primary);
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.step-label {
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    margin-bottom: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 1px;
 }
 
-.controls {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1rem;
+.action-instruction {
+    text-align: center;
+    margin: 1rem 0;
+    animation: pulse-border 2s infinite;
 }
 
-.instructions {
+.instruction-text {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--primary);
+}
+
+.instruction-text strong {
+    font-weight: 900;
+    color: var(--accent);
+}
+
+.instruction-text.highlight {
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 4px;
+}
+
+.instruction-subtext {
+    display: block;
     font-size: 0.9rem;
-    color: #444;
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+.controls-wrapper {
+    display: flex;
+    gap: 2rem;
     margin-top: 2rem;
+}
+
+@keyframes pulse-border {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes fade-up {
@@ -103,26 +194,39 @@
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .hero-title {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
 
-    .hand-container {
+    .instruction-text {
+        font-size: 1.1rem;
+    }
+
+    .round-indicator {
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .step-label {
+        display: none;
+    }
+
+    .controls-wrapper {
+        flex-direction: column;
+        width: 100%;
         gap: 1rem;
     }
 
+    .action-btn {
+        width: 100%;
+    }
+
+    .hand-container {
+        gap: 10px;
+    }
+
     .movie-card {
-        width: 120px;
-        height: 180px;
-    }
-
-    .controls {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .btn-primary,
-    .btn-danger {
-        width: 100%;
+        width: 140px;
+        height: 210px;
     }
 }
 

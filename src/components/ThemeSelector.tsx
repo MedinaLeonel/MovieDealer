@@ -3,10 +3,13 @@ import { useState, useEffect } from 'react';
 type Theme = 'default' | 'casino' | 'jazz' | 'cinema' | 'cyber' | 'memphis';
 
 export function ThemeSelector() {
-    const [theme, setTheme] = useState<Theme>('default');
+    const [theme, setTheme] = useState<Theme>(
+        (localStorage.getItem('movieDealerTheme') as Theme) || 'default'
+    );
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('movieDealerTheme', theme);
     }, [theme]);
 
     // Labels for UI

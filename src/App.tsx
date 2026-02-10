@@ -78,10 +78,36 @@ function App() {
           </div>
         ) : (
           <div className="play-area">
-            <div className="status-bar">
-              <span>Lvl {difficulty} • Round {round}</span>
-              <span className="separator">|</span>
-              <span>Max Discards: {maxDiscards}</span>
+            <div className="game-status-panel">
+              <div className="level-badge">LEVEL {difficulty}</div>
+              <div className="round-indicator">
+                {[1, 2, 3].map((r) => (
+                  <div key={r} className={`round-step ${round >= r ? 'active' : ''} ${round === r ? 'current' : ''}`}>
+                    <span className="step-num">{r}</span>
+                    <span className="step-label">Ronda {r}</span>
+                  </div>
+                ))}
+                <div className={`round-step ${gameState === 'won' ? 'active' : ''}`}>
+                  <span className="step-icon">🎯</span>
+                  <span className="step-label">Final</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="action-instruction">
+              {maxDiscards > 0 ? (
+                <>
+                  <span className="instruction-text">
+                    Selecciona hasta <strong>{maxDiscards}</strong> películas para descartar
+                  </span>
+                  <span className="instruction-subtext">Optimiza tu mano antes de la ronda final</span>
+                </>
+              ) : (
+                <>
+                  <span className="instruction-text highlight">¡RONDA FINAL!</span>
+                  <span className="instruction-subtext">Es hora de decidir. ¿Te quedas con esta mano?</span>
+                </>
+              )}
             </div>
 
             <Hand
@@ -90,27 +116,22 @@ function App() {
               onToggle={handleToggle}
             />
 
-            <div className="controls">
+            <div className="controls-wrapper">
               {maxDiscards > 0 && (
                 <button
-                  className="btn-danger"
+                  className="btn-danger action-btn"
                   onClick={handleSwap}
                   disabled={selectedIds.length === 0}
                 >
-                  Discard Selected ({selectedIds.length})
+                  <span className="btn-icon">♻️</span>
+                  Descartar Seleccionadas ({selectedIds.length})
                 </button>
               )}
 
-              <button className="btn-primary" onClick={stand}>
-                {maxDiscards === 0 ? "Final Choice (Plantarse)" : "Plantarse (Stand)"}
+              <button className="btn-primary action-btn" onClick={stand}>
+                <span className="btn-icon">🃏</span>
+                {maxDiscards === 0 ? "Revelar Ganadora" : "Plantarse (Stand)"}
               </button>
-            </div>
-
-            <div className="instructions">
-              {maxDiscards > 0 ?
-                `Selecciona hasta ${maxDiscards} para descartar.` :
-                "Ronda final. Elige jugar esta mano."
-              }
             </div>
 
             <AdSlot active={false} />

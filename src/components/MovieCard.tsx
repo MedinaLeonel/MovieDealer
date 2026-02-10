@@ -25,9 +25,14 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                     style={{ opacity: imgLoaded ? 1 : 0 }}
                 />
                 <div className="overlay">
-                    <h3>{movie.title}</h3>
-                    <p>{movie.year}</p>
-                    <div className="rating">★ {movie.rating.toFixed(1)}</div>
+                    <div className="overlay-content">
+                        <h3>{movie.title}</h3>
+                        <div className="card-meta">
+                            <span>{movie.year}</span>
+                            <span className="rating">★ {movie.rating.toFixed(1)}</span>
+                        </div>
+                        <p className="overview">{movie.overview}</p>
+                    </div>
                 </div>
             </div>
             {selected && <div className="discard-badge">DISCARD</div>}

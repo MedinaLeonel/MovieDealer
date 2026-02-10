@@ -2,11 +2,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
-    padding: 2rem;
+    gap: 1rem;
+    padding: 3rem 1rem;
     flex-wrap: wrap;
-    min-height: 300px;
-    perspective: 1000px;
+    min-height: 350px;
+    perspective: 1200px;
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .hand-container {
+        gap: 0.5rem;
+        padding: 1rem 0;
+    }
 }
 
 /* Entrance Animation */
