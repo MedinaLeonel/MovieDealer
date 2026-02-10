@@ -1,0 +1,6 @@
+/*
+  Netlify Redirects
+  This rule ensures that any route (like /play or /winner)
+  is redirected to index.html so React Router can handle it.
+*/
+/*    /index.html   200

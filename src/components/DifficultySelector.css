@@ -1,0 +1,90 @@
+.difficulty-container {
+    margin: 2rem 0;
+    width: 100%;
+    max-width: 600px;
+}
+
+.diff-title {
+    text-align: center;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+}
+
+.diff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+.diff-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.8rem 0.5rem;
+    color: var(--primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.diff-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.diff-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.diff-num {
+    font-size: 1.2rem;
+    font-weight: 900;
+    opacity: 0.5;
+}
+
+.diff-btn.active .diff-num {
+    opacity: 1;
+}
+
+.diff-text {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.diff-text strong {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.diff-text span {
+    font-size: 0.65rem;
+    opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+    .diff-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .diff-btn {
+        flex-direction: row;
+        text-align: left;
+        padding: 1rem;
+    }
+
+    .diff-text {
+        text-align: left;
+        align-items: flex-start;
+    }
+}

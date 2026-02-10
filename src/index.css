@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Playfair+Display:wght@400;700&family=Syncopate:wght@400;700&family=Bebas+Neue&family=VT323&family=Righteous&display=swap');
+
+:root {
+    /* DEFAULT (Dark) */
+    --bg-color: #0c0c0c;
+    --primary: #fff;
+    --primary-rgb: 255, 255, 255;
+    --accent: #e50914;
+    --card-bg: #222;
+    --font-main: 'Outfit', sans-serif;
+    --radius: 12px;
+    --btn-radius: 50px;
+}
+
+[data-theme="casino"] {
+    --bg-color: #0f2b19;
+    /* Deep Green */
+    --primary: #d4af37;
+    /* Gold */
+    --primary-rgb: 212, 175, 55;
+    --accent: #cb202d;
+    /* Poker Red */
+    --card-bg: #1a472a;
+    /* Felt Green */
+    --font-main: 'Playfair Display', serif;
+    --radius: 4px;
+    --btn-radius: 4px;
+}
+
+[data-theme="jazz"] {
+    --bg-color: #0d001a;
+    /* Dark Purple */
+    --primary: #00e5ff;
+    /* Cyan */
+    --primary-rgb: 0, 229, 255;
+    --accent: #d23669;
+    /* Pink */
+    --card-bg: #1f0b2e;
+    --font-main: 'Syncopate', sans-serif;
+    --radius: 20px;
+    --btn-radius: 20px;
+}
+
+[data-theme="cinema"] {
+    --bg-color: #1a0000;
+    /* Dark Red */
+    --primary: #f5c542;
+    /* Cinema Gold */
+    --primary-rgb: 245, 197, 66;
+    --accent: #fff;
+    --card-bg: #4a0000;
+    --font-main: 'Bebas Neue', cursive;
+    --radius: 2px;
+    --btn-radius: 2px;
+    /* font-size: 1.2rem; removed to fix alignment validation */
+}
+
+[data-theme="cyber"] {
+    --bg-color: #000000;
+    --primary: #0f0;
+    /* Terminal Green */
+    --primary-rgb: 0, 255, 0;
+    --accent: #0f0;
+    --card-bg: #111;
+    --font-main: 'VT323', monospace;
+    --radius: 0px;
+    --btn-radius: 0px;
+    border: 1px solid #0f0;
+}
+
+[data-theme="memphis"] {
+    --bg-color: #1a1a1a;
+    --primary: #FFD700;
+    /* Yellow */
+    --primary-rgb: 255, 215, 0;
+    --accent: #FF00FF;
+    /* Magenta */
+    --card-bg: #2d2d2d;
+    --font-main: 'Righteous', cursive;
+    --radius: 16px;
+    --btn-radius: 8px;
+    /* Add geometric patterns via background later? */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--primary);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    overflow-x: hidden;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--bg-color);
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: var(--btn-radius);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid rgba(var(--primary-rgb), 0.3);
+    padding: 0.9rem 1.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: var(--btn-radius);
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.btn-danger {
+    background: rgba(229, 9, 20, 0.2);
+    color: #ff5f5f;
+    border: 1px solid var(--accent);
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Theme Selector Styles */
+.theme-selector {
+    position: absolute;
+    top: 1rem;
+    right: 6rem;
+    /* Left of Streak */
+    z-index: 50;
+}
+
+.theme-dropdown {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid rgba(var(--primary-rgb), 0.5);
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    font-family: var(--font-main);
+    cursor: pointer;
+}
+
+.theme-dropdown option {
+    background: #000;
+    color: #fff;
+}
