@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Movie } from '../lib/types';
+import { motion } from 'framer-motion';
 import './MovieCard.css';
 
 interface MovieCardProps {
@@ -13,7 +14,9 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
     const [imgLoaded, setImgLoaded] = useState(false);
 
     return (
-        <div
+        <motion.div
+            whileHover={{ y: -10, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={`movie-card ${selected ? 'selected' : ''} ${disabled ? 'disabled' : ''}`}
             onClick={() => !disabled && onToggle(movie.id)}
         >
@@ -36,6 +39,6 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                 </div>
             </div>
             {selected && <div className="discard-badge">DISCARD</div>}
-        </div>
+        </motion.div>
     );
 }

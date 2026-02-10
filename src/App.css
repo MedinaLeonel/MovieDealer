@@ -8,20 +8,124 @@
 .app-header {
     display: flex;
     justify-content: space-between;
-    padding: 1.5rem 2rem;
     align-items: center;
+    padding: 1rem 2rem;
+    position: relative;
+    z-index: 1000;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .brand {
     font-weight: 900;
-    font-size: 1.5rem;
-    letter-spacing: -1px;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    letter-spacing: -1.5px;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.stats-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 8px;
 }
 
 .streak {
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-size: 1rem;
+    font-weight: 700;
     color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+    padding: 6px 14px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    white-space: nowrap;
+}
+
+.tokens-badge {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #00d2ff;
+    background: rgba(0, 210, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 50px;
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .app-header {
+        padding: 1rem;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .header-actions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-color);
+        padding: 2rem 1rem;
+        flex-direction: column;
+        gap: 2rem;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        border-top: 1px solid rgba(var(--primary-rgb), 0.1);
+        text-align: center;
+    }
+
+    .header-actions.show {
+        display: flex;
+    }
+
+    .action-group,
+    .stats-group {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+/* Specificity fix for overlapping header actions */
+.app-header .header-actions .stats-group {
+    display: flex !important;
+    position: relative !important;
+    gap: 1rem !important;
+}
+
+.app-header .header-actions .tokens-badge,
+.app-header .header-actions .streak {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    display: flex !important;
 }
 
 .game-board {

@@ -9,12 +9,17 @@ import { DifficultySelector } from './components/DifficultySelector';
 
 import { FilterMenu } from './components/FilterMenu';
 
+import { Onboarding } from './components/Onboarding';
+import { ToastFeed } from './components/ToastFeed';
+import { Menu, X } from 'lucide-react';
+
 function App() {
   const {
     gameState,
     hand,
     winner,
     streak,
+    tokens,
     round,
     loading,
     error,
@@ -31,6 +36,7 @@ function App() {
   } = useMovieDealer();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleToggle = (id: number) => {
     setSelectedIds(prev => {
@@ -136,7 +142,7 @@ function App() {
               ) : (
                 <>
                   <span className="instruction-text highlight">¡RONDA FINAL!</span>
-                  <span className="instruction-subtext">Es hora de decidir. ¿Te quedas con esta mano?</span>
+                  <span className="instruction-subtext">{tokens <= 0 ? 'Sin fichas: All-in forzado.' : 'Es hora de decidir. ¿Te quedas con esta mano?'}</span>
                 </>
               )}
             </div>
@@ -152,14 +158,14 @@ function App() {
                 <button
                   className="btn-danger action-btn"
                   onClick={handleSwap}
-                  disabled={selectedIds.length === 0}
+                  disabled={selectedIds.length === 0 || loading}
                 >
                   <span className="btn-icon">♻️</span>
-                  Descartar Seleccionadas ({selectedIds.length})
+                  {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
                 </button>
               )}
 
-              <button className="btn-primary action-btn" onClick={stand}>
+              <button className="btn-primary action-btn" onClick={stand} disabled={loading}>
                 <span className="btn-icon">🃏</span>
                 {maxDiscards === 0 ? "Revelar Ganadora" : "Plantarse (Stand)"}
               </button>
@@ -176,17 +182,37 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="app-header">
-        <div className="brand">MovieDealer 🎴</div>
-        <ThemeSelector />
-        <div className="streak">🔥 {streak}</div>
+      <header className={`app-header ${isMobileMenuOpen ? 'menu-open' : ''}`}>
+        <div className="header-main">
+          <div className="brand">MovieDealer 🎴</div>
+          <button
+            className="mobile-menu-toggle"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+
+        <div className={`header-actions ${isMobileMenuOpen ? 'show' : ''}`}>
+          <div className="action-group">
+            <ThemeSelector />
+          </div>
+          <div className="stats-group">
+            <div className="tokens-badge">💎 {tokens}</div>
+            <div className="streak">🔥 {streak}</div>
+          </div>
+        </div>
       </header>
 
       <main className="game-board">
         {renderContent()}
       </main>
+
+      <Onboarding />
+      <ToastFeed />
     </div>
   );
 }
+
 
 export default App;

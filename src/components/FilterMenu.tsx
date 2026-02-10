@@ -41,7 +41,7 @@ const DECADES = [
 
 export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: FilterMenuProps) {
     const [personSearch, setPersonSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<{ id: number; name: string; known_for_department: string }[]>([]);
 
     useEffect(() => {
         const searchPerson = async () => {

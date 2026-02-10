@@ -12,6 +12,7 @@ export interface Movie {
     difficulty?: DifficultyLevel;
     popularity?: number;
     vote_count?: number;
+    imdb_id?: string;
 }
 
 export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'won';
@@ -21,4 +22,14 @@ export interface FilterSettings {
     decades: string[];
     person?: { id: number; name: string; type: 'actor' | 'director' };
     minRating?: number;
+}
+
+export interface WatchProvider {
+    provider_id: number;
+    provider_name: string;
+    logo_path: string;
+}
+
+export interface MovieDetails extends Movie {
+    providers?: WatchProvider[];
 }
