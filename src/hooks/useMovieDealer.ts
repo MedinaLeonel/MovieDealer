@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Movie, GameState, DifficultyLevel } from '../lib/types';
+import type { Movie, GameState, DifficultyLevel, FilterSettings } from '../lib/types';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'PLACEHOLDER_KEY';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -24,6 +24,7 @@ export function useMovieDealer() {
     const [round, setRound] = useState(1);
     const [streak, setStreak] = useState(0);
     const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
+    const [filters, setFilters] = useState<FilterSettings>({});
 
     // Cache to avoid multi-fetching same difficulty in same session
     const moviePool = useRef<Movie[]>([]);
@@ -35,23 +36,39 @@ export function useMovieDealer() {
         }
     }, []);
 
-    const fetchMoviesByDifficulty = useCallback(async (level: DifficultyLevel): Promise<Movie[]> => {
+    const fetchMoviesByDifficulty = useCallback(async (level: DifficultyLevel, gameFilters: FilterSettings): Promise<Movie[]> => {
         if (!TMDB_API_KEY || TMDB_API_KEY === 'PLACEHOLDER_KEY') {
             throw new Error('API Key faltante o inválida.');
         }
 
-        let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&sort_by=popularity.desc&include_adult=false&page=${Math.floor(Math.random() * 5) + 1}`;
+        let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&sort_by=popularity.desc&include_adult=false`;
 
+        // Apply Difficulty Base
         if (level <= 2) {
-            // Mainstream
             url += '&vote_count.gte=5000&popularity.gte=500';
         } else if (level <= 4) {
-            // Medium
             url += '&vote_average.gte=7&popularity.lte=500&popularity.gte=100';
         } else {
-            // Hidden Gems
             url += '&vote_count.lte=1000&vote_average.gte=7.5&vote_count.gte=50';
         }
+
+        // Apply Dynamic Filters
+        if (gameFilters.genre) {
+            url += `&with_genres=${gameFilters.genre}`;
+        }
+        if (gameFilters.decade) {
+            const year = parseInt(gameFilters.decade);
+            url += `&primary_release_date.gte=${year}-01-01&primary_release_date.lte=${year + 9}-12-31`;
+        }
+        if (gameFilters.person) {
+            url += `&with_people=${gameFilters.person.id}`;
+        }
+        if (gameFilters.minRating) {
+            url += `&vote_average.gte=${gameFilters.minRating}`;
+        }
+
+        // Randomize page slightly to avoid repetition
+        url += `&page=${Math.floor(Math.random() * 3) + 1}`;
 
         try {
             const response = await fetch(url);
@@ -62,7 +79,8 @@ export function useMovieDealer() {
             const data = await response.json();
 
             if (!data.results || data.results.length === 0) {
-                throw new Error('No se encontraron películas para este filtro.');
+                // If specific filters returned nothing, try without some or warn
+                throw new Error('No se encontraron películas para esta combinación de filtros.');
             }
 
             return data.results.map((m: any) => ({
@@ -74,7 +92,7 @@ export function useMovieDealer() {
                 overview: m.overview,
                 popularity: m.popularity,
                 vote_count: m.vote_count,
-                genre: [] // Could map genre IDs if needed
+                genre: m.genre_ids?.map(String) || []
             }));
         } catch (err) {
             console.error('Fetch error:', err);
@@ -82,12 +100,15 @@ export function useMovieDealer() {
         }
     }, []);
 
+    const goToConfig = () => setGameState('configuring');
+
     const dealHand = useCallback(async () => {
         setLoading(true);
         setError(null);
+        setGameState('dealing');
         try {
-            const movies = await fetchMoviesByDifficulty(difficulty);
-            if (movies.length < 5) throw new Error('No hay suficientes películas configuradas.');
+            const movies = await fetchMoviesByDifficulty(difficulty, filters);
+            if (movies.length < 5) throw new Error('No hay suficientes películas con estos filtros. Intenta suavizar tu búsqueda.');
 
             const shuffled = [...movies].sort(() => 0.5 - Math.random());
             moviePool.current = shuffled.slice(5); // Keep rest in pool
@@ -98,10 +119,11 @@ export function useMovieDealer() {
         } catch (err: any) {
             console.error('Game Error:', err);
             setError(err.message || 'Error desconocido al cargar películas.');
+            setGameState('configuring'); // Fallback to config
         } finally {
             setLoading(false);
         }
-    }, [difficulty, fetchMoviesByDifficulty]);
+    }, [difficulty, filters, fetchMoviesByDifficulty]);
 
     const getMaxDiscards = () => {
         if (round === 1) return 4;
@@ -148,6 +170,7 @@ export function useMovieDealer() {
         setWinner(null);
         setRound(1);
         moviePool.current = [];
+        setFilters({});
     }
 
     return {
@@ -161,6 +184,9 @@ export function useMovieDealer() {
         maxDiscards: getMaxDiscards(),
         difficulty,
         setDifficulty,
+        filters,
+        setFilters,
+        goToConfig,
         dealHand,
         swapCards,
         stand,

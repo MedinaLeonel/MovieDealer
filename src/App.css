@@ -230,6 +230,33 @@
     }
 }
 
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    animation: fade-up 0.5s ease-out;
+}
+
+.dealer-spinner {
+    font-size: 5rem;
+    animation: card-flip 1s infinite ease-in-out;
+}
+
+@keyframes card-flip {
+    0% {
+        transform: rotateY(0deg);
+    }
+
+    50% {
+        transform: rotateY(180deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotateY(360deg);
+    }
+}
+
 .error-message {
     margin-top: 1rem;
     color: var(--accent);

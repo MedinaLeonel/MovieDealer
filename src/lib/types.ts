@@ -14,4 +14,11 @@ export interface Movie {
     vote_count?: number;
 }
 
-export type GameState = 'idle' | 'dealing' | 'playing' | 'won';
+export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'won';
+
+export interface FilterSettings {
+    genre?: string;
+    decade?: string;
+    person?: { id: number; name: string; type: 'actor' | 'director' };
+    minRating?: number;
+}

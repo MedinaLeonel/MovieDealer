@@ -7,6 +7,8 @@ import { AdSlot } from './components/AdSlot';
 import { ThemeSelector } from './components/ThemeSelector';
 import { DifficultySelector } from './components/DifficultySelector';
 
+import { FilterMenu } from './components/FilterMenu';
+
 function App() {
   const {
     gameState,
@@ -19,6 +21,9 @@ function App() {
     maxDiscards,
     difficulty,
     setDifficulty,
+    filters,
+    setFilters,
+    goToConfig,
     dealHand,
     swapCards,
     stand,
@@ -48,16 +53,10 @@ function App() {
     return <Winner movie={winner} onReset={resetGame} />;
   }
 
-  return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="brand">MovieDealer 🎴</div>
-        <ThemeSelector />
-        <div className="streak">🔥 {streak}</div>
-      </header>
-
-      <main className="game-board">
-        {gameState === 'idle' ? (
+  const renderContent = () => {
+    switch (gameState) {
+      case 'idle':
+        return (
           <div className="hero-section">
             <h1 className="hero-title">
               No pienses.<br />Solo elige.
@@ -68,15 +67,37 @@ function App() {
 
             <button
               className="btn-primary hero-cta"
-              onClick={dealHand}
+              onClick={goToConfig}
               disabled={loading}
             >
-              {loading ? 'Repartiendo...' : 'Deal me a hand'}
+              Continuar
             </button>
 
             {error && <div className="error-message">{error}</div>}
           </div>
-        ) : (
+        );
+
+      case 'configuring':
+        return (
+          <FilterMenu
+            filters={filters}
+            onFiltersChange={setFilters}
+            onConfirm={dealHand}
+            onBack={resetGame}
+          />
+        );
+
+      case 'dealing':
+        return (
+          <div className="loading-state">
+            <div className="dealer-spinner">🃏</div>
+            <p>El Dealer está barajando...</p>
+            {error && <div className="error-message">{error}</div>}
+          </div>
+        );
+
+      case 'playing':
+        return (
           <div className="play-area">
             <div className="game-status-panel">
               <div className="level-badge">LEVEL {difficulty}</div>
@@ -87,7 +108,7 @@ function App() {
                     <span className="step-label">Ronda {r}</span>
                   </div>
                 ))}
-                <div className={`round-step ${gameState === 'won' ? 'active' : ''}`}>
+                <div className="round-step">
                   <span className="step-icon">🎯</span>
                   <span className="step-label">Final</span>
                 </div>
@@ -136,7 +157,23 @@ function App() {
 
             <AdSlot active={false} />
           </div>
-        )}
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="app-container">
+      <header className="app-header">
+        <div className="brand">MovieDealer 🎴</div>
+        <ThemeSelector />
+        <div className="streak">🔥 {streak}</div>
+      </header>
+
+      <main className="game-board">
+        {renderContent()}
       </main>
     </div>
   );
