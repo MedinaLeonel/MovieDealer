@@ -113,24 +113,27 @@
 }
 
 .info-trigger {
-    background: rgba(var(--primary-rgb), 0.1);
+    background: rgba(var(--primary-rgb), 0.05);
     color: var(--primary);
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
-    padding: 8px 16px;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 500;
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
     transition: all 0.2s;
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 5rem;
+    /* Same level as toasts but other side */
+    left: 1.5rem;
+    z-index: 9999;
 }
 
 button.info-trigger:not(:disabled):hover {
-    background: rgba(var(--primary-rgb), 0.2);
+    background: rgba(var(--primary-rgb), 0.1);
     border-color: var(--primary);
-    transform: translateX(-50%) scale(1.05);
+    transform: scale(1.05);
 }
 
 @keyframes fadeIn {

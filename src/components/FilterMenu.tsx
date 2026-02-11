@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { FilterSettings } from '../lib/types';
 import './FilterMenu.css';
 
@@ -79,80 +80,123 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
 
     return (
         <div className="filter-menu-container">
-            <h2 className="setup-title">Personaliza tu Mano</h2>
+            <h2 className="setup-title">Personaliza</h2>
 
-            <section className="filter-section">
-                <h3>Géneros (Selecciona varios)</h3>
-                <div className="chip-group">
-                    {GENRES.map(g => (
-                        <button
-                            key={g.id}
-                            className={`chip ${filters.genres.includes(g.id) ? 'active' : ''}`}
-                            onClick={() => handleToggleGenre(g.id)}
-                        >
-                            {g.name}
-                        </button>
-                    ))}
-                </div>
-            </section>
+            <div className="filter-scroll-area">
+                <motion.section
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="filter-section"
+                >
+                    <h3>GÉNEROS</h3>
+                    <div className="chip-group">
+                        {GENRES.map((g, i) => (
+                            <motion.button
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: i * 0.02 }}
+                                whileTap={{ scale: 0.95 }}
+                                key={g.id}
+                                className={`chip ${filters.genres.includes(g.id) ? 'active' : ''}`}
+                                onClick={() => handleToggleGenre(g.id)}
+                            >
+                                {g.name}
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.section>
 
-            <section className="filter-section">
-                <h3>Décadas (Selecciona varias)</h3>
-                <div className="chip-group">
-                    {DECADES.map(d => (
-                        <button
-                            key={d.id}
-                            className={`chip ${filters.decades.includes(d.id) ? 'active' : ''}`}
-                            onClick={() => handleToggleDecade(d.id)}
-                        >
-                            {d.name}
-                        </button>
-                    ))}
-                </div>
-            </section>
+                <motion.section
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="filter-section"
+                >
+                    <h3>DÉCADAS</h3>
+                    <div className="chip-group">
+                        {DECADES.map((d, i) => (
+                            <motion.button
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.2 + (i * 0.02) }}
+                                whileTap={{ scale: 0.95 }}
+                                key={d.id}
+                                className={`chip ${filters.decades.includes(d.id) ? 'active' : ''}`}
+                                onClick={() => handleToggleDecade(d.id)}
+                            >
+                                {d.name}
+                            </motion.button>
+                        ))}
+                    </div>
+                </motion.section>
 
-            <section className="filter-section">
-                <h3>Actor o Director</h3>
-                <div className="search-container">
-                    <input
-                        type="text"
-                        placeholder="Ej: Tarantino, Di Caprio..."
-                        value={filters.person?.name || personSearch}
-                        onChange={(e) => {
-                            if (filters.person) onFiltersChange({ ...filters, person: undefined });
-                            setPersonSearch(e.target.value);
-                        }}
-                        className="filter-input"
-                    />
-                    {searchResults.length > 0 && !filters.person && (
-                        <div className="search-dropdown">
-                            {searchResults.map(p => (
-                                <div
-                                    key={p.id}
-                                    className="search-item"
-                                    onClick={() => {
-                                        onFiltersChange({
-                                            ...filters,
-                                            person: { id: p.id, name: p.name, type: p.known_for_department === 'Directing' ? 'director' : 'actor' }
-                                        });
-                                        setPersonSearch('');
-                                        setSearchResults([]);
-                                    }}
+                <motion.section
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="filter-section"
+                >
+                    <h3>DIRECTOR O ACTOR</h3>
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            placeholder="Buscar nombre..."
+                            value={filters.person?.name || personSearch}
+                            onChange={(e) => {
+                                if (filters.person) onFiltersChange({ ...filters, person: undefined });
+                                setPersonSearch(e.target.value);
+                            }}
+                            className="filter-input"
+                        />
+                        <AnimatePresence>
+                            {searchResults.length > 0 && !filters.person && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="search-dropdown"
                                 >
-                                    {p.name} <small>({p.known_for_department === 'Directing' ? 'Director' : 'Actor'})</small>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    {filters.person && (
-                        <button className="clear-btn" onClick={() => onFiltersChange({ ...filters, person: undefined })}>✕</button>
-                    )}
-                </div>
-            </section>
+                                    {searchResults.map(p => (
+                                        <div
+                                            key={p.id}
+                                            className="search-item"
+                                            onClick={() => {
+                                                onFiltersChange({
+                                                    ...filters,
+                                                    person: { id: p.id, name: p.name, type: p.known_for_department === 'Directing' ? 'director' : 'actor' }
+                                                });
+                                                setPersonSearch('');
+                                                setSearchResults([]);
+                                            }}
+                                        >
+                                            {p.name} <small>({p.known_for_department === 'Directing' ? 'Dir' : 'Act'})</small>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        {filters.person && (
+                            <button className="clear-btn" onClick={() => onFiltersChange({ ...filters, person: undefined })}>✕</button>
+                        )}
+                    </div>
+                </motion.section>
+            </div>
 
             <div className="setup-actions">
-                <button className="btn-secondary" onClick={onBack}>Atrás</button>
-                <button className="btn-primary" onClick={onConfirm}>Repartir Mano</button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    className="btn-secondary"
+                    onClick={onBack}
+                >
+                    ATRÁS
+                </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    className="btn-primary"
+                    onClick={onConfirm}
+                >
+                    REPARTIR
+                </motion.button>
             </div>
         </div>
     );

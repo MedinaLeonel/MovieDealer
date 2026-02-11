@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import './App.css';
 import { useMovieDealer } from './hooks/useMovieDealer';
 import { Hand } from './components/Hand';
 import { Winner } from './components/Winner';
-import { AdSlot } from './components/AdSlot';
-import { ThemeSelector } from './components/ThemeSelector';
-import { DifficultySelector } from './components/DifficultySelector';
+import { AdSlot } from './components/ui/AdSlot';
+import { DifficultySelector } from './components/ui/DifficultySelector';
+import { Header } from './components/Header';
+import { Tooltip } from './components/ui/Tooltip';
 
 import { FilterMenu } from './components/FilterMenu';
 
 import { Onboarding } from './components/Onboarding';
 import { ToastFeed } from './components/ToastFeed';
-import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
   const {
@@ -23,6 +23,7 @@ function App() {
     round,
     loading,
     error,
+    burnMessage,
     maxDiscards,
     difficulty,
     setDifficulty,
@@ -36,7 +37,6 @@ function App() {
   } = useMovieDealer();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleToggle = (id: number) => {
     setSelectedIds(prev => {
@@ -55,12 +55,12 @@ function App() {
     setSelectedIds([]);
   };
 
-  if (gameState === 'won' && winner) {
-    return <Winner movie={winner} onReset={resetGame} />;
-  }
+  // No longer returning Winner early, it will be handled in renderContent within the container scope
 
   const renderContent = () => {
     switch (gameState) {
+      case 'won':
+        return winner ? <Winner movie={winner} hand={hand} onReset={resetGame} /> : null;
       case 'idle':
         return (
           <div className="hero-section">
@@ -71,23 +71,47 @@ function App() {
 
             <DifficultySelector level={difficulty} onChange={setDifficulty} />
 
-            <div className="setup-choice-group">
-              <button
+            <motion.div
+              className="setup-choice-group"
+              variants={{
+                show: {
+                  transition: {
+                    staggerChildren: 0.1,
+                    delayChildren: 0.5
+                  }
+                }
+              }}
+              initial="hidden"
+              animate="show"
+            >
+              <motion.button
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ scale: 1.05, boxShadow: 'var(--glow-accent)' }}
+                whileTap={{ scale: 0.95 }}
                 className="btn-primary hero-cta pulse-btn"
                 onClick={dealHand}
                 disabled={loading}
               >
                 {loading ? 'Preparando...' : 'Comenzar Juego'}
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="btn-secondary hero-cta"
                 onClick={goToConfig}
                 disabled={loading}
               >
                 Personalizar Mano
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {error && <div className="error-message">{error}</div>}
           </div>
@@ -113,9 +137,10 @@ function App() {
         );
 
       case 'playing':
+      case 'revealing':
         return (
           <div className="play-area">
-            <div className="game-status-panel">
+            <div className={`game-status-panel ${gameState === 'revealing' ? 'blur-out' : ''}`}>
               <div className="level-badge">LEVEL {difficulty}</div>
               <div className="round-indicator">
                 {[1, 2, 3].map((r) => (
@@ -132,7 +157,17 @@ function App() {
             </div>
 
             <div className="action-instruction">
-              {maxDiscards > 0 ? (
+              {burnMessage && (
+                <div className="dealer-burn-notice">
+                  {burnMessage}
+                </div>
+              )}
+              {gameState === 'revealing' ? (
+                <div className="reveal-notice revealing-pulse">
+                  <span className="instruction-text highlight">EL DEALER REVELA EL DESTINO...</span>
+                  <span className="instruction-subtext">Aguarda un instante...</span>
+                </div>
+              ) : maxDiscards > 0 ? (
                 <>
                   <span className="instruction-text">
                     Selecciona hasta <strong>{maxDiscards}</strong> películas para descartar
@@ -151,24 +186,38 @@ function App() {
               cards={hand}
               selectedIds={selectedIds}
               onToggle={handleToggle}
+              isFinalRound={maxDiscards === 0 || gameState === 'revealing'}
+              isRevealing={gameState === 'revealing'}
             />
 
             <div className="controls-wrapper">
-              {maxDiscards > 0 && (
-                <button
-                  className="btn-danger action-btn"
-                  onClick={handleSwap}
-                  disabled={selectedIds.length === 0 || loading}
-                >
-                  <span className="btn-icon">♻️</span>
-                  {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
-                </button>
+              {maxDiscards > 0 && gameState !== 'revealing' && (
+                <Tooltip text={`Cuesta ${selectedIds.length * 10} tokens de energía`}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="btn-danger action-btn"
+                    onClick={handleSwap}
+                    disabled={selectedIds.length === 0 || loading}
+                  >
+                    <span className="btn-icon">♻️</span>
+                    {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
+                  </motion.button>
+                </Tooltip>
               )}
 
-              <button className="btn-primary action-btn" onClick={stand} disabled={loading}>
-                <span className="btn-icon">🃏</span>
-                {maxDiscards === 0 ? "Revelar Ganadora" : "Plantarse (Stand)"}
-              </button>
+              {gameState !== 'revealing' && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-primary action-btn"
+                  onClick={stand}
+                  disabled={loading}
+                >
+                  <span className="btn-icon">🃏</span>
+                  {maxDiscards === 0 ? "Revelar Ganadora" : "Plantarse (Stand)"}
+                </motion.button>
+              )}
             </div>
 
             <AdSlot active={false} />
@@ -182,30 +231,25 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className={`app-header ${isMobileMenuOpen ? 'menu-open' : ''}`}>
-        <div className="header-main">
-          <div className="brand">MovieDealer 🎴</div>
-          <button
-            className="mobile-menu-toggle"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-
-        <div className={`header-actions ${isMobileMenuOpen ? 'show' : ''}`}>
-          <div className="action-group">
-            <ThemeSelector />
-          </div>
-          <div className="stats-group">
-            <div className="tokens-badge">💎 {tokens}</div>
-            <div className="streak">🔥 {streak}</div>
-          </div>
-        </div>
-      </header>
+      <Header
+        tokens={tokens}
+        streak={streak}
+        onReset={resetGame}
+      />
 
       <main className="game-board">
-        {renderContent()}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={gameState}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <Onboarding />
@@ -213,6 +257,5 @@ function App() {
     </div>
   );
 }
-
 
 export default App;

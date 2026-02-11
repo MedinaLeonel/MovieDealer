@@ -1,12 +1,28 @@
 .toast-feed-container {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    z-index: 1000;
+    position: absolute;
+    /* Relative to app-container */
+    top: 5rem;
+    /* Below header */
+    right: 1rem;
+    left: 1rem;
+    z-index: 10000;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
     pointer-events: none;
+    animation: toast-slide-down 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes toast-slide-down {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .social-toast {

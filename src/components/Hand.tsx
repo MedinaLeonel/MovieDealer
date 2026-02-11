@@ -7,18 +7,25 @@ interface HandProps {
     cards: Movie[];
     selectedIds: number[];
     onToggle: (id: number) => void;
+    isFinalRound?: boolean;
+    isRevealing?: boolean;
 }
 
-export function Hand({ cards, selectedIds, onToggle }: HandProps) {
+export function Hand({ cards, selectedIds, onToggle, isFinalRound, isRevealing }: HandProps) {
     return (
-        <div className="hand-container">
+        <div className={`hand-container ${isRevealing ? 'revealing-layout' : ''}`}>
             <AnimatePresence mode="popLayout">
                 {cards.map((movie, index) => (
                     <motion.div
                         key={movie.id}
                         layout
                         initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        animate={{
+                            opacity: 1,
+                            scale: isRevealing ? 0.9 : 1,
+                            y: 0,
+                            rotate: isRevealing ? (index - 2) * 5 : 0
+                        }}
                         exit={{ opacity: 0, y: -500, rotate: 15, scale: 0.5 }}
                         transition={{
                             type: 'spring',
@@ -31,7 +38,8 @@ export function Hand({ cards, selectedIds, onToggle }: HandProps) {
                             movie={movie}
                             selected={selectedIds.includes(movie.id)}
                             onToggle={onToggle}
-                            disabled={false}
+                            disabled={isRevealing}
+                            isFacedDown={isFinalRound}
                         />
                     </motion.div>
                 ))}

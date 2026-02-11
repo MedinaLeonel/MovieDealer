@@ -1,0 +1,123 @@
+.difficulty-container {
+    margin: 2rem auto;
+    width: 100%;
+    max-width: 600px;
+}
+
+.diff-title {
+    font-family: var(--font-mono);
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 2rem;
+    opacity: 0.4;
+    text-transform: uppercase;
+}
+
+.diff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+}
+
+@media (min-width: 900px) {
+    .diff-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+}
+
+.diff-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.75rem 0.5rem;
+    color: var(--primary);
+    display: flex;
+    flex-direction: row;
+    /* Horizontal layout saves vertical space */
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    min-height: 60px;
+    width: 100%;
+}
+
+.diff-btn:hover {
+    background: rgba(var(--primary-rgb), 0.05);
+    border-color: rgba(var(--primary-rgb), 0.4);
+    transform: translateY(-2px);
+}
+
+.diff-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg-color) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+    font-weight: 900;
+}
+
+.diff-btn.active * {
+    color: inherit !important;
+}
+
+.diff-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    opacity: 0.3;
+}
+
+.diff-btn.active .diff-num {
+    opacity: 1;
+}
+
+.diff-text {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.diff-text strong {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.diff-text span {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    opacity: 0.5;
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 600px) {
+    .diff-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns to save vertical space */
+        gap: 0.5rem;
+    }
+
+    .diff-btn {
+        min-height: 80px;
+        /* Reduced height */
+        padding: 0.8rem 0.4rem;
+    }
+
+    .diff-num {
+        font-size: 1.2rem;
+    }
+
+    .diff-text strong {
+        font-size: 11px;
+    }
+
+    .diff-text span {
+        font-size: 8px;
+    }
+}

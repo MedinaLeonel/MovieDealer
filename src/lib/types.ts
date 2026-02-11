@@ -13,9 +13,10 @@ export interface Movie {
     popularity?: number;
     vote_count?: number;
     imdb_id?: string;
+    isMystery?: boolean;
 }
 
-export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'won';
+export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'revealing' | 'won';
 
 export interface FilterSettings {
     genres: string[];
@@ -30,6 +31,11 @@ export interface WatchProvider {
     logo_path: string;
 }
 
+export interface WinningStats {
+    winningGenres: Record<string, number>;
+}
+
 export interface MovieDetails extends Movie {
     providers?: WatchProvider[];
+    flatrate?: boolean; // Indica si se puede ver por suscripción
 }

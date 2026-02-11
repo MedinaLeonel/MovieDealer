@@ -1,13 +1,18 @@
 .hand-container {
+    flex: 1;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
-    padding: 3rem 1rem;
-    flex-wrap: wrap;
-    min-height: 350px;
-    perspective: 1200px;
+    /* Center vertically in the available space */
+    gap: 1.5rem;
+    padding: 1.5rem;
+    overflow-y: auto;
     width: 100%;
+}
+
+.hand-container::-webkit-scrollbar {
+    display: none;
 }
 
 @media (max-width: 600px) {
