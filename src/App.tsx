@@ -194,7 +194,6 @@ function App() {
               cards={hand}
               selectedIds={selectedIds}
               onToggle={handleToggle}
-              isFinalRound={maxDiscards === 0 || gameState === 'revealing'}
               isRevealing={gameState === 'revealing'}
             />
 

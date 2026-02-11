@@ -9,22 +9,16 @@ interface MovieCardProps {
     selected?: boolean;
     onToggle: (id: number) => void;
     disabled?: boolean;
-    isFacedDown?: boolean;
 }
 
-export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: MovieCardProps) {
+export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProps) {
     const [imgLoaded, setImgLoaded] = useState(false);
-    const [isRevealed, setIsRevealed] = useState(!isFacedDown);
     const [isExpanded, setIsExpanded] = useState(false);
 
     const handleCardClick = () => {
         if (disabled) return;
-        if (isFacedDown && !isRevealed) {
-            setIsRevealed(true);
-        } else {
-            // Clicking the card now ONLY toggles selection
-            onToggle(movie.id);
-        }
+        // Clicking the card now ONLY toggles selection
+        onToggle(movie.id);
     };
 
     const handleOpenDetails = (e: React.MouseEvent) => {
@@ -59,8 +53,7 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                     whileTap={!isExpanded && !movie.isMystery ? { scale: 0.95 } : {}}
                     className={`movie-card ${isExpanded ? 'is-expanded' : ''} 
                                ${selected ? 'selected' : ''}
-                               ${disabled ? 'disabled' : ''}
-                               ${isFacedDown && !isRevealed ? 'faced-down' : ''}`}
+                               ${disabled ? 'disabled' : ''}`}
                     onClick={handleCardClick}
                 >
                     {/* Discard Badge for small view */}
@@ -69,7 +62,7 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                     )}
 
                     {/* View Button (New) */}
-                    {!isExpanded && !movie.isMystery && isRevealed && (
+                    {!isExpanded && !movie.isMystery && (
                         <motion.button
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -93,7 +86,7 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                                         (e.target as HTMLImageElement).src = ''; // Force fallback
                                         (e.target as HTMLImageElement).style.display = 'none';
                                     }}
-                                    style={{ opacity: (imgLoaded && isRevealed) ? 1 : 0 }}
+                                    style={{ opacity: imgLoaded ? 1 : 0 }}
                                 />
                             ) : null
                         ) : (
@@ -102,14 +95,14 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                                 <span className="mystery-text">CARTA DE MISTERIO</span>
                             </div>
                         )}
-                        {!movie.isMystery && (!movie.poster || movie.poster === 'https://image.tmdb.org/t/p/w500null' || (imgLoaded && isRevealed && !document.querySelector(`img[src="${movie.poster}"]`))) && (
+                        {!movie.isMystery && (!movie.poster || movie.poster === 'https://image.tmdb.org/t/p/w500null' || (imgLoaded && !document.querySelector(`img[src="${movie.poster}"]`))) && (
                             <div className="no-poster-fallback">
                                 <span className="fallback-icon">🍿</span>
                                 <span className="fallback-text">SIN IMAGEN</span>
                             </div>
                         )}
 
-                        <div className={`overlay ${isRevealed && !movie.isMystery ? 'show' : ''} ${isExpanded ? 'hide-overlay' : ''}`}>
+                        <div className={`overlay ${!movie.isMystery ? 'show' : ''} ${isExpanded ? 'hide-overlay' : ''}`}>
                             <div className="overlay-content">
                                 <h3>{movie.title}</h3>
                                 <div className="card-meta">

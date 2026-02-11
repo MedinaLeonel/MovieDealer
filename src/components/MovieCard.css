@@ -239,34 +239,6 @@
     filter: grayscale(100%);
 }
 
-.movie-card.faced-down {
-    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-    border: 1px solid rgba(var(--primary-rgb), 0.1);
-}
-
-.movie-card.faced-down .poster-wrapper {
-    opacity: 0;
-}
-
-.movie-card.faced-down::before {
-    content: "🎴";
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    opacity: 0.15;
-    filter: grayscale(1);
-}
-
-.movie-card.faced-down::after {
-    content: "";
-    position: absolute;
-    inset: 8px;
-    border: 1px dashed rgba(var(--primary-rgb), 0.1);
-    border-radius: calc(var(--radius) - 8px);
-}
 
 .poster-wrapper {
     width: 100%;

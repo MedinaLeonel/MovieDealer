@@ -7,11 +7,10 @@ interface HandProps {
     cards: Movie[];
     selectedIds: number[];
     onToggle: (id: number) => void;
-    isFinalRound?: boolean;
     isRevealing?: boolean;
 }
 
-export function Hand({ cards, selectedIds, onToggle, isFinalRound, isRevealing }: HandProps) {
+export function Hand({ cards, selectedIds, onToggle, isRevealing }: HandProps) {
     return (
         <div className={`hand-container ${isRevealing ? 'revealing-layout' : ''}`}>
             <AnimatePresence mode="popLayout">
@@ -38,7 +37,6 @@ export function Hand({ cards, selectedIds, onToggle, isFinalRound, isRevealing }
                             selected={selectedIds.includes(movie.id)}
                             onToggle={onToggle}
                             disabled={isRevealing}
-                            isFacedDown={isFinalRound}
                         />
                     </motion.div>
                 ))}
