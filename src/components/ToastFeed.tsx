@@ -3,25 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserCheck } from 'lucide-react';
 import './ToastFeed.css';
 
-const coastalCities = [
-    'San Bernardo', 'Pinamar', 'Villa Gesell', 'Mar del Plata',
-    'Cariló', 'Santa Teresita', 'Mar de las Pampas', 'Necochea'
-];
-
-const names = [
-    'Leandro', 'Micaela', 'Facundo', 'Valentina',
-    'Julian', 'Sol', 'Mateo', 'Delfina', 'Bauti'
-];
-
 interface Toast {
     id: number;
     text: string;
 }
 
 export const ToastFeed: React.FC = () => {
-    const [toasts, setToasts] = useState<Toast[]>([]);
+    const [toasts] = useState<Toast[]>([]);
 
     useEffect(() => {
+        // Disabled by user request: "Remover sistema de feedback virtual de usuarios"
+        /*
         const interval = setInterval(() => {
             const name = names[Math.floor(Math.random() * names.length)];
             const city = coastalCities[Math.floor(Math.random() * coastalCities.length)];
@@ -41,6 +33,7 @@ export const ToastFeed: React.FC = () => {
         }, 15000);
 
         return () => clearInterval(interval);
+        */
     }, []);
 
     return (

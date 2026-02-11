@@ -1,11 +1,13 @@
 .winner-view {
-    position: absolute;
-    inset: 0;
-    z-index: 1000;
+    position: relative;
+    width: 100%;
+    min-height: 100%;
     background: var(--bg-color);
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    padding: 0;
 }
 
 /* Layer 1: Background Depth */
@@ -34,10 +36,15 @@
 .winner-content-layout {
     position: relative;
     z-index: 10;
-    height: 100%;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
+    flex: 1;
+    /* Allow to grow */
 }
 
 /* Header Fijo */

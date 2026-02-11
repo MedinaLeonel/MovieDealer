@@ -27,7 +27,9 @@ export function Winner({ movie, hand, onReset }: WinnerProps) {
         <div className={`winner-view ${showContent ? 'is-active' : ''}`}>
             {/* Capa 1: Fondo Cinemático con Depth y Blur */}
             <div className="winner-background">
-                <div className="poster-bloom" style={{ backgroundImage: `url(${movie.poster})` }}></div>
+                {movie.poster && movie.poster !== 'https://image.tmdb.org/t/p/w500null' && (
+                    <div className="poster-bloom" style={{ backgroundImage: `url(${movie.poster})` }}></div>
+                )}
                 <div className="dynamic-vignette"></div>
             </div>
 
@@ -64,7 +66,14 @@ export function Winner({ movie, hand, onReset }: WinnerProps) {
                         animate={{ scale: 1, opacity: 1 }}
                         className="master-card-mini"
                     >
-                        <img src={movie.poster} alt={movie.title} />
+                        {movie.poster && movie.poster !== 'https://image.tmdb.org/t/p/w500null' ? (
+                            <img src={movie.poster} alt={movie.title} />
+                        ) : (
+                            <div className="no-poster-fallback">
+                                <span className="fallback-icon">🍿</span>
+                                <span className="fallback-text">SIN IMAGEN</span>
+                            </div>
+                        )}
                     </motion.div>
 
                     <div className="winner-stats-mini">

@@ -14,6 +14,10 @@ import { ToastFeed } from './components/ToastFeed';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('movieDealerHasSeenOnboarding');
+  });
+
   const {
     gameState,
     hand,
@@ -69,7 +73,11 @@ function App() {
             </h1>
             <p className="hero-subtitle">Tu próxima película favorita en 60 segundos.</p>
 
-            <DifficultySelector level={difficulty} onChange={setDifficulty} />
+            <DifficultySelector
+              level={difficulty}
+              onChange={setDifficulty}
+              onShowInfo={() => setShowOnboarding(true)}
+            />
 
             <motion.div
               className="setup-choice-group"
@@ -252,7 +260,10 @@ function App() {
         </AnimatePresence>
       </main>
 
-      <Onboarding />
+      <Onboarding
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
       <ToastFeed />
     </div>
   );

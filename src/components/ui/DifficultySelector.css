@@ -1,7 +1,12 @@
 .difficulty-container {
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .diff-title {
@@ -9,22 +14,46 @@
     text-align: center;
     font-size: 0.75rem;
     letter-spacing: 0.3em;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+    /* Reduced from 2rem */
     opacity: 0.4;
     text-transform: uppercase;
+}
+
+.info-trigger-inline {
+    display: block;
+    margin: 0 auto 1.5rem auto;
+    background: rgba(var(--primary-rgb), 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.6;
+}
+
+.info-trigger-inline:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    opacity: 1;
+    transform: translateY(-1px);
 }
 
 .diff-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
-    padding: 0.5rem 1rem;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 768px) {
     .diff-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: 1.25rem;
     }
 }
 

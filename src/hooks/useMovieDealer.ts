@@ -3,7 +3,7 @@ import type { Movie, GameState, DifficultyLevel, FilterSettings, WinningStats } 
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'PLACEHOLDER_KEY';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w342';
 
 export function useMovieDealer() {
     const [gameState, setGameState] = useState<GameState>('idle');
@@ -190,6 +190,7 @@ export function useMovieDealer() {
 
     const stand = useCallback(async () => {
         if (hand.length === 0) return;
+        setGameState('revealing');
         setLoading(true);
 
         try {
@@ -219,8 +220,6 @@ export function useMovieDealer() {
             } else {
                 chosen = candidates[0];
             }
-
-            setGameState('revealing');
 
             // Simular secuencia de revelación (delay para animación en UI)
             setTimeout(() => {

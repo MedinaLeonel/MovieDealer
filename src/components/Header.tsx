@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
         <header className="app-header">
             <div className="header-main">
                 <div className="brand" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-                    MovieDealer 🎴
+                    MovieDealer
                 </div>
             </div>
 
@@ -30,10 +30,10 @@ export const Header: React.FC<HeaderProps> = ({
                     <ThemeSelector />
                 </div>
                 <div className="stats-group">
-                    <Tooltip text="Energía disponible para descartar cartas">
+                    <Tooltip text="Energía disponible para descartar cartas" position="bottom">
                         <div className="tokens-badge">💎 {tokens}</div>
                     </Tooltip>
-                    <Tooltip text="Días seguidos descubriendo cine">
+                    <Tooltip text="Días seguidos descubriendo cine" position="bottom">
                         <div className="streak">🔥 {streak}</div>
                     </Tooltip>
                 </div>

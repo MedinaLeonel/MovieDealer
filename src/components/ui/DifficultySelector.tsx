@@ -6,6 +6,7 @@ import type { DifficultyLevel } from '../../lib/types';
 interface Props {
     level: DifficultyLevel;
     onChange: (level: DifficultyLevel) => void;
+    onShowInfo: () => void;
 }
 
 const LEVELS: { id: DifficultyLevel; label: string; sub: string; desc: string }[] = [
@@ -17,10 +18,13 @@ const LEVELS: { id: DifficultyLevel; label: string; sub: string; desc: string }[
     { id: 6, label: "Leyenda", sub: "Historia del Cine", desc: "Clásicos y obras maestras del culto" },
 ];
 
-export function DifficultySelector({ level, onChange }: Props) {
+export function DifficultySelector({ level, onChange, onShowInfo }: Props) {
     return (
         <div className="difficulty-container">
             <h3 className="diff-title">NIVEL DE CINEFILIA</h3>
+            <button className="info-trigger-inline" onClick={onShowInfo}>
+                ¿Cómo funciona? ℹ️
+            </button>
             <div className="diff-grid">
                 {LEVELS.map((L) => (
                     <Tooltip key={L.id} text={L.desc}>

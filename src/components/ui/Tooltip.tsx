@@ -4,9 +4,10 @@ import './Tooltip.css';
 interface TooltipProps {
     text: string;
     children: React.ReactNode;
+    position?: 'top' | 'bottom';
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
+export const Tooltip: React.FC<TooltipProps> = ({ text, children, position = 'top' }) => {
     const [show, setShow] = useState(false);
 
     return (
@@ -19,7 +20,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
         >
             {children}
             {show && (
-                <div className="tooltip-box">
+                <div className={`tooltip-box position-${position}`}>
                     {text}
                     <div className="tooltip-arrow"></div>
                 </div>

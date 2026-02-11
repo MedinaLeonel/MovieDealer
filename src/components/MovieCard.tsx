@@ -83,18 +83,32 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
 
                     <div className={`poster-wrapper ${!imgLoaded && !movie.isMystery ? 'skeleton' : ''}`}>
                         {!movie.isMystery ? (
-                            <img
-                                src={movie.poster}
-                                alt={movie.title}
-                                onLoad={() => setImgLoaded(true)}
-                                style={{ opacity: (imgLoaded && isRevealed) ? 1 : 0 }}
-                            />
+                            (movie.poster && movie.poster !== 'https://image.tmdb.org/t/p/w500null') ? (
+                                <img
+                                    src={movie.poster}
+                                    alt={movie.title}
+                                    onLoad={() => setImgLoaded(true)}
+                                    onError={(e) => {
+                                        setImgLoaded(true);
+                                        (e.target as HTMLImageElement).src = ''; // Force fallback
+                                        (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                    style={{ opacity: (imgLoaded && isRevealed) ? 1 : 0 }}
+                                />
+                            ) : null
                         ) : (
                             <div className="mystery-poster">
                                 <span className="mystery-icon">?</span>
                                 <span className="mystery-text">CARTA DE MISTERIO</span>
                             </div>
                         )}
+                        {!movie.isMystery && (!movie.poster || movie.poster === 'https://image.tmdb.org/t/p/w500null' || (imgLoaded && isRevealed && !document.querySelector(`img[src="${movie.poster}"]`))) && (
+                            <div className="no-poster-fallback">
+                                <span className="fallback-icon">🍿</span>
+                                <span className="fallback-text">SIN IMAGEN</span>
+                            </div>
+                        )}
+
                         <div className={`overlay ${isRevealed && !movie.isMystery ? 'show' : ''} ${isExpanded ? 'hide-overlay' : ''}`}>
                             <div className="overlay-content">
                                 <h3>{movie.title}</h3>

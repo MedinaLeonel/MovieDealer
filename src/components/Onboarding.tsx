@@ -1,23 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Onboarding.css';
 
-export const Onboarding: React.FC = () => {
-    const [isOpen, setIsOpen] = useState(() => {
-        return !localStorage.getItem('movieDealerHasSeenOnboarding');
-    });
+interface OnboardingProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
+export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose }) => {
     const closeOnboarding = () => {
-        setIsOpen(false);
+        onClose();
         localStorage.setItem('movieDealerHasSeenOnboarding', 'true');
     };
 
-    if (!isOpen) {
-        return (
-            <button className="info-trigger" onClick={() => setIsOpen(true)}>
-                ¿Cómo funciona? ℹ️
-            </button>
-        );
-    }
+    if (!isOpen) return null;
 
     return (
         <div className="onboarding-overlay">

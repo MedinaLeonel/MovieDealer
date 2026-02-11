@@ -18,7 +18,6 @@ export function Hand({ cards, selectedIds, onToggle, isFinalRound, isRevealing }
                 {cards.map((movie, index) => (
                     <motion.div
                         key={movie.id}
-                        layout
                         initial={{ opacity: 0, scale: 0.8, y: 50 }}
                         animate={{
                             opacity: 1,
