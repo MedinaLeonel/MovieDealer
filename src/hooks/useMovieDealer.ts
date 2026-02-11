@@ -24,6 +24,9 @@ export function useMovieDealer() {
     const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
     const [filters, setFilters] = useState<FilterSettings>({ genres: [], decades: [] });
     const [discarded, setDiscarded] = useState<Movie[]>([]);
+    const [availabilityCache, setAvailabilityCache] = useState<Record<number, boolean>>({});
+    const [discardHistory, setDiscardHistory] = useState<{ genres: Record<string, number>, decades: Record<string, number> }>({ genres: {}, decades: {} });
+
 
     const moviePool = useRef<Movie[]>([]);
     const prevFilters = useRef<FilterSettings | null>(null);
@@ -58,10 +61,34 @@ export function useMovieDealer() {
             if (hasPersonChanged || haveGenresChanged || haveDecadesChanged) {
                 console.log("Filtros cambiaron drásticamente: Limpiando historial de sesión.");
                 setSeenMovieIds([]);
+                setDiscardHistory({ genres: {}, decades: {} }); // Reset affinity bias
             }
         }
         prevFilters.current = filters;
     }, [filters]);
+
+    // PRE-CACHE STREAMING DATA (v0.3 Latency Zero)
+    useEffect(() => {
+        if (gameState === 'playing' && hand.length > 0) {
+            const fetchAvailability = async () => {
+                const newCache = { ...availabilityCache };
+                const promises = hand.filter(m => !m.isMystery && newCache[m.id] === undefined).map(async (m) => {
+                    try {
+                        const res = await fetch(`${TMDB_BASE_URL}/movie/${m.id}/watch/providers?api_key=${TMDB_API_KEY}`);
+                        const data = await res.json();
+                        const resultsAR = data.results?.AR;
+                        newCache[m.id] = !!(resultsAR?.flatrate && resultsAR.flatrate.length > 0);
+                    } catch (e) {
+                        newCache[m.id] = false;
+                    }
+                });
+                await Promise.all(promises);
+                setAvailabilityCache(newCache);
+            };
+            fetchAvailability();
+        }
+    }, [gameState, hand]);
+
 
     const saveSeenToStorage = useCallback((ids: number[]) => {
         setSeenMovieIds(prev => {
@@ -204,22 +231,13 @@ export function useMovieDealer() {
             let chosen: Movie;
 
             if (tiedMovies.length > 1) {
-                // Hay empate técnico, revisamos WatchProviders para AR
-                const providersPromises = tiedMovies.map(async (m) => {
-                    const res = await fetch(`${TMDB_BASE_URL}/movie/${m.id}/watch/providers?api_key=${TMDB_API_KEY}`);
-                    const data = await res.json();
-                    const resultsAR = data.results?.AR;
-                    const hasFlatrate = !!(resultsAR?.flatrate && resultsAR.flatrate.length > 0);
-                    return { ...m, hasFlatrate };
-                });
-
-                const moviesWithStreaming = await Promise.all(providersPromises);
-                const streamWinner = moviesWithStreaming.find(m => m.hasFlatrate);
-
-                chosen = streamWinner || tiedMovies[0]; // Si ninguna tiene streaming, tomamos la de mayor rating
+                // Hay empate técnico, revisamos Cache de Streaming (v0.3 instant)
+                const streamWinner = tiedMovies.find(m => availabilityCache[m.id]);
+                chosen = streamWinner || tiedMovies[0];
             } else {
                 chosen = candidates[0];
             }
+
 
             // Simular secuencia de revelación (delay para animación en UI)
             setTimeout(() => {
@@ -354,10 +372,26 @@ export function useMovieDealer() {
 
     // 7. Swapping Adaptativo
     const swapCards = useCallback(async (idsToDiscard: number[]) => {
-        const max = (round === 1) ? 4 : (round === 2) ? 3 : (round === 3) ? 2 : 0;
-        if (tokens <= 0 || idsToDiscard.length > max || idsToDiscard.length === 0) return;
+        // Calcular coste exponencial (v0.3 La Trampa del Jugador)
+        const cost = Math.floor(10 * Math.pow(idsToDiscard.length, 1.2));
+        if (tokens < cost) return;
 
         setLoading(true);
+
+        // Track discard history for Affinity Bias (v0.3)
+        const discardedCards = hand.filter(m => idsToDiscard.includes(m.id));
+        setDiscardHistory(prev => {
+            const newHistory = { ...prev };
+            discardedCards.forEach(m => {
+                const decade = Math.floor(Number(m.year) / 10) * 10;
+                newHistory.decades[decade] = (newHistory.decades[decade] || 0) + 1;
+                m.genre.forEach(g => {
+                    newHistory.genres[g] = (newHistory.genres[g] || 0) + 1;
+                });
+            });
+            return newHistory;
+        });
+
         const keptCards = hand.filter(m => !idsToDiscard.includes(m.id));
         const handIds = new Set(keptCards.map(m => m.id));
         const sessionSeen = new Set(seenMovieIds);
@@ -368,8 +402,15 @@ export function useMovieDealer() {
 
         let replacements: Movie[] = [];
 
-        // Heurística de reemplazo único
-        const validFromPool = moviePool.current.filter(m => !handIds.has(m.id) && !sessionSeen.has(m.id));
+        // Heurística de reemplazo único con Blacklist Bias (v0.3)
+        const blacklistedDecades = Object.entries(discardHistory.decades)
+            .filter(([_, count]) => count > 3)
+            .map(([d, _]) => Number(d));
+
+        const validFromPool = moviePool.current.filter(m => {
+            const mDecade = Math.floor(Number(m.year) / 10) * 10;
+            return !handIds.has(m.id) && !sessionSeen.has(m.id) && !blacklistedDecades.includes(mDecade);
+        });
 
         if (keptGenres.length > 0) {
             const intersected = validFromPool.filter(m => {
@@ -409,7 +450,7 @@ export function useMovieDealer() {
         let newHand = [...keptCards, ...replacements];
         saveSeenToStorage(replacements.filter(m => !m.isMystery).map(m => m.id));
 
-        setTokens(prev => Math.max(0, prev - (idsToDiscard.length * 10)));
+        setTokens(prev => Math.max(0, prev - cost));
         const nextRound = round + 1;
         setRound(nextRound);
 
@@ -419,6 +460,7 @@ export function useMovieDealer() {
 
         setHand(newHand);
         setLoading(false);
+
     }, [hand, round, tokens, seenMovieIds, executeDealerBurn, saveSeenToStorage]);
 
     const resetGame = () => {
