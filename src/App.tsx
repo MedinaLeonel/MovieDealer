@@ -199,7 +199,7 @@ function App() {
 
             <div className="controls-wrapper">
               {maxDiscards > 0 && gameState !== 'revealing' && (
-                <Tooltip text={`Cuesta ${Math.floor(10 * Math.pow(selectedIds.length, 1.2))} tokens de energía`}>
+                <Tooltip text={`Cuesta ${selectedIds.length * 10} tokens de energía`}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -208,14 +208,7 @@ function App() {
                     disabled={selectedIds.length === 0 || loading}
                   >
                     <span className="btn-icon">♻️</span>
-                    <span className="btn-text">
-                      {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
-                      {selectedIds.length > 0 && (
-                        <span className="token-cost-mini">
-                          -{Math.floor(10 * Math.pow(selectedIds.length, 1.2))}⚡
-                        </span>
-                      )}
-                    </span>
+                    {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
                   </motion.button>
                 </Tooltip>
               )}
