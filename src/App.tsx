@@ -210,7 +210,7 @@ function App() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="btn-primary action-btn"
+                  className="btn-danger action-btn"
                   onClick={stand}
                   disabled={loading}
                 >
@@ -245,7 +245,7 @@ function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}
+            style={{ width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}
           >
             {renderContent()}
           </motion.div>

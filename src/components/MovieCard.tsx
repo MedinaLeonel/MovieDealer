@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Movie } from '../lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WatchProviders } from './WatchProviders';
@@ -17,39 +17,25 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
     const [isRevealed, setIsRevealed] = useState(!isFacedDown);
     const [isExpanded, setIsExpanded] = useState(false);
 
-    // Auto-expand when a card is selected (marked for discard) for the first time
-    useEffect(() => {
-        if (selected) {
-            setIsExpanded(true);
-        } else {
-            setIsExpanded(false);
-        }
-    }, [selected]);
-
     const handleCardClick = () => {
         if (disabled) return;
         if (isFacedDown && !isRevealed) {
             setIsRevealed(true);
         } else {
-            if (!selected) {
-                // If not selected, select it (this will trigger isExpanded via useEffect)
-                onToggle(movie.id);
-            } else {
-                // If already selected but collapsed, expand it
-                if (!isExpanded) {
-                    setIsExpanded(true);
-                } else {
-                    // If expanded, backdrop click or secondary click collapses it
-                    setIsExpanded(false);
-                }
-            }
+            // Clicking the card now ONLY toggles selection
+            onToggle(movie.id);
         }
+    };
+
+    const handleOpenDetails = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (disabled) return;
+        setIsExpanded(true);
     };
 
     const handleCloseDetails = (e: React.MouseEvent) => {
         e.stopPropagation();
         setIsExpanded(false);
-        // We DO NOT call onToggle here, so it remains "selected" (marked for discard)
     };
 
     const handleKeepMovie = (e: React.MouseEvent) => {
@@ -82,6 +68,19 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                         <div className="discard-badge">MARCADA</div>
                     )}
 
+                    {/* View Button (New) */}
+                    {!isExpanded && !movie.isMystery && isRevealed && (
+                        <motion.button
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="view-card-btn"
+                            onClick={handleOpenDetails}
+                            title="Ver detalles"
+                        >
+                            👁️
+                        </motion.button>
+                    )}
+
                     <div className={`poster-wrapper ${!imgLoaded && !movie.isMystery ? 'skeleton' : ''}`}>
                         {!movie.isMystery ? (
                             <img
@@ -103,6 +102,11 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                                     <span>{movie.year}</span>
                                     <span className="rating">★ {movie.rating.toFixed(1)}</span>
                                 </div>
+                                {movie.genre && (
+                                    <div className="card-genres">
+                                        {movie.genre.slice(0, 2).join(' • ')}
+                                    </div>
+                                )}
                                 <p className="overview">{movie.overview}</p>
                             </div>
                         </div>
@@ -127,6 +131,7 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                                     <div className="expanded-meta">
                                         <span className="rating">★ {movie.rating.toFixed(1)}</span>
                                         {movie.popularity && <span className="pop-rank">🔥 Pop: {Math.round(movie.popularity)}</span>}
+                                        {movie.genre && <span className="genres">{movie.genre.join(', ')}</span>}
                                     </div>
 
                                     <p className="full-overview">{movie.overview}</p>
@@ -155,7 +160,7 @@ export function MovieCard({ movie, selected, onToggle, disabled, isFacedDown }: 
                     )}
 
                 </motion.div>
-                {isExpanded && <div className="expanded-backdrop" onClick={handleCardClick} />}
+                {isExpanded && <div className="expanded-backdrop" onClick={handleCloseDetails} />}
             </motion.div>
         </AnimatePresence>
     );

@@ -1,13 +1,10 @@
 .hand-container {
-    flex: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    /* Center vertically in the available space */
     gap: 1.5rem;
     padding: 1.5rem;
-    overflow-y: auto;
     width: 100%;
 }
 
