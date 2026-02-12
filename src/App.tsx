@@ -57,10 +57,17 @@ function App() {
   };
 
   // v0.5.0: Send keepIds (selectedIds) to swapCards
+  // QA: Las cartas conservadas siguen seleccionadas para la próxima ronda (no desmarcar).
   const handleSwap = () => {
     if (selectedIds.length === 0) return;
-    swapCards(selectedIds); // selectedIds = keepIds
+    const keepIds = [...selectedIds];
+    swapCards(keepIds);
+    setSelectedIds(keepIds); // Mantener selección para la siguiente ronda
+  };
+
+  const handleDeal = () => {
     setSelectedIds([]);
+    dealHand();
   };
 
   // No longer returning Winner early, it will be handled in renderContent within the container scope
@@ -104,7 +111,7 @@ function App() {
                 whileHover={{ scale: 1.05, boxShadow: 'var(--glow-accent)' }}
                 whileTap={{ scale: 0.95 }}
                 className="btn-primary hero-cta pulse-btn"
-                onClick={dealHand}
+                onClick={handleDeal}
                 disabled={loading}
               >
                 {loading ? 'Preparando...' : 'Comenzar Juego'}
@@ -134,7 +141,7 @@ function App() {
           <FilterMenu
             filters={filters}
             onFiltersChange={setFilters}
-            onConfirm={dealHand}
+            onConfirm={handleDeal}
             onBack={resetGame}
           />
         );

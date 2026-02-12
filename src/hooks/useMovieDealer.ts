@@ -338,7 +338,7 @@ export function useMovieDealer() {
                 initialPool = [...initialPool, ...expanded];
             }
 
-            if (initialPool.filter(m => !sessionSeen.has(m.id)).length < 5) {
+            if (initialPool.filter(m => !sessionSeen.has(m.id)).length < 6) {
                 console.log("Pool aún pequeño: Relajando rating mínimo...");
                 const lowRating = await fetchMoviesByDifficulty(difficulty, {
                     ...filters,
@@ -348,7 +348,7 @@ export function useMovieDealer() {
             }
 
             // v0.3.5 Especial: Fallback Curado para Nivel 6
-            if (difficulty === 6 && initialPool.filter(m => !sessionSeen.has(m.id)).length < 5) {
+            if (difficulty === 6 && initialPool.filter(m => !sessionSeen.has(m.id)).length < 6) {
                 console.log("Nivel 6 agotado: Inyectando Clásicos de Culto...");
                 const classicIds = [680, 1398, 346, 238, 424, 15, 429, 103, 11]; // Pulp Fiction, Stalker, 7 Samurai, etc.
                 const classicPromises = classicIds.map(async (id) => {
@@ -386,7 +386,7 @@ export function useMovieDealer() {
                 const count = genreCount[primaryGenre] || 0;
 
                 // Priorizamos diversidad de géneros (máximo 2 por género)
-                if (selectedHand.length < 5 && count < 2) {
+                if (selectedHand.length < 6 && count < 2) {
                     selectedHand.push(movie);
                     genreCount[primaryGenre] = count + 1;
                     uniqueIds.add(movie.id);
@@ -394,7 +394,7 @@ export function useMovieDealer() {
             }
 
             // Relleno final garantizando unicidad y sin repetir vistos
-            while (selectedHand.length < 5 && shuffled.length > 0) {
+            while (selectedHand.length < 6 && shuffled.length > 0) {
                 const movie = shuffled.pop()!;
                 if (!uniqueIds.has(movie.id) && !sessionSeen.has(movie.id)) {
                     selectedHand.push(movie);
@@ -403,9 +403,9 @@ export function useMovieDealer() {
             }
 
             // Fallback Crítico: Mystery Cards (v0.4.0)
-            if (selectedHand.length < 5) {
+            if (selectedHand.length < 6) {
                 console.warn("Algoritmo agotado: Insertando Mystery Cards para completar mano.");
-                while (selectedHand.length < 5) {
+                while (selectedHand.length < 6) {
                     selectedHand.push({
                         id: -100 - selectedHand.length,
                         title: "Mazo Agotado",
@@ -428,6 +428,7 @@ export function useMovieDealer() {
             setRound(1);
             saveSeenToStorage(selectedHand.filter(m => !m.isMystery).map(m => m.id));
         } catch (err) {
+            console.error(err);
             const message = err instanceof Error ? err.message : 'Error al repartir la mano.';
             setError(message);
             setGameState('idle');
@@ -441,7 +442,7 @@ export function useMovieDealer() {
         // Derive what to replace: everything NOT in keepIds
         const keptCards = hand.filter(m => keepIds.includes(m.id));
         const discardedCards = hand.filter(m => !keepIds.includes(m.id));
-        const numToReplace = discardedCards.length;
+        const numToReplace = 6 - keptCards.length; // Always refill to 6
 
         if (tokens <= 0 || numToReplace === 0) return;
 
@@ -586,12 +587,48 @@ export function useMovieDealer() {
         saveSeenToStorage(replacements.filter(m => !m.isMystery).map(m => m.id));
         setDiscarded(prev => [...prev, ...discardedCards]);
 
-        setTokens(prev => Math.max(0, prev - (numToReplace * 10)));
+        const tokensCost = discardedCards.length * 10;
+        setTokens(prev => Math.max(0, prev - tokensCost));
         const nextRound = round + 1;
         setRound(nextRound);
 
+        // v0.6.1: Dealer Burn now REPLACES the card to maintain 6 cards
         if (nextRound === 2) {
-            newHand = executeDealerBurn(newHand);
+            const sortedHand = [...newHand].sort((a, b) => a.rating - b.rating);
+            const lowestRated = sortedHand[0];
+
+            // Try to find one replacement for the burned card
+            let burnReplacement: Movie[] = [];
+
+            // Try pool first
+            const replacementFromPool = moviePool.current.find(m =>
+                !newHand.some(h => h.id === m.id) &&
+                !sessionSeen.has(m.id) &&
+                !discardedCards.some(d => d.id === m.id)
+            );
+
+            if (replacementFromPool) {
+                burnReplacement = [replacementFromPool];
+            } else {
+                // Creating specialized mystery request or just Mystery Card
+                burnReplacement = [{
+                    id: -999,
+                    title: "Comodín del Dealer",
+                    year: "2026",
+                    rating: 9.9,
+                    poster: "",
+                    genre: [],
+                    overview: "El Dealer quemó una carta débil y sacó este comodín para mantener el juego vivo.",
+                    isMystery: true,
+                    mysteryText: "COMODÍN"
+                }];
+            }
+
+            setBurnMessage(`Dealer's Choice: Cambié "${lowestRated.title}" por algo mejor.`);
+            setDiscarded(prev => [...prev, lowestRated]);
+            setTimeout(() => setBurnMessage(null), 5000);
+
+            newHand = newHand.map(m => m.id === lowestRated.id ? burnReplacement[0] : m);
         }
 
         setHand(newHand);
@@ -617,36 +654,9 @@ export function useMovieDealer() {
         moviePool.current = [];
     };
 
-    // v0.6.0: Extended to 6 rounds with more generous discard limits for deep discovery
-    // Round progression: 4→4→3→3→2→1 cards can be kept (allowing 1→1→2→2→3→4 to be discarded)
-    const getMaxKeep = () => {
-        if (tokens <= 0) return hand.length; // All-in: must keep all
-        switch (round) {
-            case 1: return 4; // Can discard 1
-            case 2: return 4; // Can discard 1
-            case 3: return 3; // Can discard 2
-            case 4: return 3; // Can discard 2
-            case 5: return 2; // Can discard 3
-            case 6: return 1; // Can discard 4 (final refinement)
-            default: return hand.length; // Stand pat
-        }
-    };
-
-    const getMaxDiscards = () => {
-        if (tokens <= 0) return 0;
-        switch (round) {
-            case 1: return 1;
-            case 2: return 1;
-            case 3: return 2;
-            case 4: return 2;
-            case 5: return 3;
-            case 6: return 4;
-            default: return 0;
-        }
-    };
-
-    const maxKeep = getMaxKeep();
-    const maxDiscards = getMaxDiscards();
+    // v0.6.1: Siempre puede seleccionar para conservar (hasta 6). Solo se queda sin descartes (tokens).
+    const maxKeep = 6;
+    const maxDiscards = tokens > 0 ? 6 : 0;
 
     return {
         gameState,
