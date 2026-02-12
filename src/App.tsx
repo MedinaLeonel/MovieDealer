@@ -82,7 +82,7 @@ function App() {
       case 'idle':
         return (
           <div className="hero-section">
-            <h1 className="hero-title">MOVIEDEALER</h1>
+            <h1 className="hero-title">MOVIE<span className="hero-title--accent">DEALER</span></h1>
             <p className="hero-title hero-title--line2">CRUPIER DE PELÍCULAS.</p>
             <p className="hero-subtitle">Tu próxima película en 60 segundos.</p>
 

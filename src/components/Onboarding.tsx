@@ -20,7 +20,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose }) => {
                 <button className="close-onboarding" onClick={closeOnboarding}>×</button>
                 <div className="onboarding-header">
                     <span className="onboarding-icon">🃏</span>
-                    <h2>Bienvenido a MovieDealer</h2>
+                    <h2>Bienvenido a Movie<span className="brand-dealer">Dealer</span></h2>
                 </div>
 
                 <div className="onboarding-steps">

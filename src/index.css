@@ -257,6 +257,10 @@ button:not(:disabled):hover {
     color: var(--primary);
 }
 
+.brand-dealer {
+    color: var(--accent);
+}
+
 .brand:hover {
     transform: skewX(-5deg);
 }
@@ -355,6 +359,10 @@ button:not(:disabled):hover {
     margin-bottom: 0.75rem;
     color: var(--primary);
     text-transform: uppercase;
+}
+
+.hero-title--accent {
+    color: var(--accent);
 }
 
 .hero-title--line2 {

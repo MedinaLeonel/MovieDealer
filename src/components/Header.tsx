@@ -21,7 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
         <header className="app-header">
             <div className="header-main">
                 <div className="brand" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-                    MovieDealer
+                    Movie<span className="brand-dealer">Dealer</span>
                 </div>
             </div>
 
