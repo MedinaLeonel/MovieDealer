@@ -34,7 +34,7 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
 
     const handleKeepMovie = (e: React.MouseEvent) => {
         e.stopPropagation();
-        onToggle(movie.id); // Deselect it
+        if (!selected) onToggle(movie.id); // Select it (conserve)
         setIsExpanded(false);
     };
 
@@ -56,9 +56,9 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                                ${disabled ? 'disabled' : ''}`}
                     onClick={handleCardClick}
                 >
-                    {/* Discard Badge for small view */}
+                    {/* v0.5.0: Keep Badge for small view */}
                     {selected && !isExpanded && (
-                        <div className="discard-badge">MARCADA</div>
+                        <div className="keep-badge">CONSERVAR</div>
                     )}
 
                     {/* View Button (New) */}
@@ -92,7 +92,7 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                         ) : (
                             <div className="mystery-poster">
                                 <span className="mystery-icon">?</span>
-                                <span className="mystery-text">CARTA DE MISTERIO</span>
+                                <span className="mystery-text">{movie.mysteryText || "CARTA DE MISTERIO"}</span>
                             </div>
                         )}
                         {!movie.isMystery && (!movie.poster || movie.poster === 'https://image.tmdb.org/t/p/w500null' || (imgLoaded && !document.querySelector(`img[src="${movie.poster}"]`))) && (
@@ -122,7 +122,7 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                     {isExpanded && (
                         <div className="expanded-details" onClick={(e) => e.stopPropagation()}>
                             <div className="expanded-header">
-                                <span className="discard-badge-large">MARCADA PARA DESCARTAR</span>
+                                <span className="keep-badge-large">CONSERVADA</span>
                                 <motion.button
                                     whileTap={{ scale: 0.9 }}
                                     className="close-expanded"

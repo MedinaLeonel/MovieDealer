@@ -27,6 +27,9 @@ const GENRES = [
     { id: '53', name: 'Thriller' },
     { id: '10752', name: 'Guerra' },
     { id: '37', name: 'Western' },
+    { id: '99', name: 'Documental' },
+    { id: '10751', name: 'Familia' },
+    { id: '10770', name: 'TV Movie' },
 ];
 
 const DECADES = [
@@ -38,6 +41,8 @@ const DECADES = [
     { id: '1970', name: '70s' },
     { id: '1960', name: '60s' },
     { id: '1950', name: '50s' },
+    { id: '1940', name: '40s' },
+    { id: '1930', name: '30s' },
 ];
 
 export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: FilterMenuProps) {

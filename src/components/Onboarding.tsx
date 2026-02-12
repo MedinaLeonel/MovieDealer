@@ -26,22 +26,22 @@ export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose }) => {
                 <div className="onboarding-steps">
                     <div className="onboarding-step">
                         <div className="step-badge">1</div>
-                        <p><strong>El Dealer reparte 5 cartas:</strong> Cada película se elige según tu nivel y se sesga por tus géneros favoritos históricos.</p>
+                        <p><strong>Pool Masivo:</strong> El Dealer busca ~200 películas según tu nivel y filtros. Esto te da un océano de opciones para explorar.</p>
                     </div>
 
                     <div className="onboarding-step">
                         <div className="step-badge">2</div>
-                        <p><strong>Refina tu mano:</strong> Tienes 3 rondas. ¡Ojo! En la Ronda 2, el Dealer **quemará** la peor carta automáticamente para subir el nivel.</p>
+                        <p><strong>6 Rondas de Refinamiento:</strong> Tienes 6 oportunidades para perfeccionar tu mano. El sistema aprende de lo que conservas y adapta las recomendaciones.</p>
                     </div>
 
                     <div className="onboarding-step">
                         <div className="step-badge">3</div>
-                        <p><strong>Gestión de Energía:</strong> Descartar cartas consume **10 tokens**. Si te quedas sin energía, tendrás que ir All-In con lo que tengas.</p>
+                        <p><strong>300 Tokens de Energía:</strong> Cada carta descartada cuesta 10 tokens. Úsalos sabiamente para explorar el pool completo y encontrar tu película ideal.</p>
                     </div>
                 </div>
 
                 <div className="onboarding-footer">
-                    <p className="onboarding-tip">💡 Tip: El algoritmo no solo aprende lo que conservas, sino que prioriza películas con streaming en tu región.</p>
+                    <p className="onboarding-tip">💡 Tip: El sistema aprende de tus elecciones. Conserva lo que te gusta y el algoritmo adaptará las siguientes cartas a tus preferencias.</p>
                     <button className="btn-primary" onClick={closeOnboarding}>¡Entendido!</button>
                 </div>
             </div>

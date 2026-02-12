@@ -39,9 +39,11 @@
     overflow: hidden;
 }
 
+/* v0.5.0: Selected = KEEP = Bright & Vibrant */
 .movie-card.selected:not(.is-expanded) {
-    border: 2px solid var(--accent);
-    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.3);
+    border: 2px solid rgba(120, 255, 160, 0.8);
+    box-shadow: 0 0 25px rgba(120, 255, 160, 0.35), 0 0 60px rgba(120, 255, 160, 0.1);
+    transform: translateY(-4px) scale(1.02);
 }
 
 .movie-card.is-expanded .poster-wrapper {
@@ -86,16 +88,16 @@
     background: rgba(var(--primary-rgb), 0.02);
 }
 
-.discard-badge-large {
+.keep-badge-large {
     font-family: var(--font-mono);
-    background: var(--accent);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
     padding: 6px 14px;
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.25em;
-    box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.4);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
 }
 
 .close-expanded {
@@ -427,19 +429,20 @@
     opacity: 0.8;
 }
 
-.discard-badge {
+/* v0.5.0: Keep Badge (replaces discard-badge) */
+.keep-badge {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: var(--accent);
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
     color: white;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
     padding: 6px 10px;
     border-radius: 6px;
     z-index: 30;
-    box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.5);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.5);
     animation: badge-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-transform: uppercase;
     letter-spacing: 1px;

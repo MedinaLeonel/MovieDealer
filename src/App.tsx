@@ -28,6 +28,8 @@ function App() {
     loading,
     error,
     burnMessage,
+    learningMessage,
+    maxKeep,
     maxDiscards,
     difficulty,
     setDifficulty,
@@ -42,20 +44,22 @@ function App() {
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
+  // v0.5.0: selectedIds now represents cards to KEEP
   const handleToggle = (id: number) => {
     setSelectedIds(prev => {
       if (prev.includes(id)) {
         return prev.filter(x => x !== id);
       } else {
-        if (prev.length >= maxDiscards) return prev;
+        if (prev.length >= maxKeep) return prev;
         return [...prev, id];
       }
     });
   };
 
+  // v0.5.0: Send keepIds (selectedIds) to swapCards
   const handleSwap = () => {
     if (selectedIds.length === 0) return;
-    swapCards(selectedIds);
+    swapCards(selectedIds); // selectedIds = keepIds
     setSelectedIds([]);
   };
 
@@ -151,10 +155,10 @@ function App() {
             <div className={`game-status-panel ${gameState === 'revealing' ? 'blur-out' : ''}`}>
               <div className="level-badge">LEVEL {difficulty}</div>
               <div className="round-indicator">
-                {[1, 2, 3].map((r) => (
+                {[1, 2, 3, 4, 5, 6].map((r) => (
                   <div key={r} className={`round-step ${round >= r ? 'active' : ''} ${round === r ? 'current' : ''}`}>
                     <span className="step-num">{r}</span>
-                    <span className="step-label">Ronda {r}</span>
+                    <span className="step-label">R{r}</span>
                   </div>
                 ))}
                 <div className="round-step">
@@ -170,6 +174,12 @@ function App() {
                   {burnMessage}
                 </div>
               )}
+              {learningMessage && (
+                <div className="learning-notice">
+                  <span className="learning-dot"></span>
+                  {learningMessage}
+                </div>
+              )}
               {gameState === 'revealing' ? (
                 <div className="reveal-notice revealing-pulse">
                   <span className="instruction-text highlight">EL DEALER REVELA EL DESTINO...</span>
@@ -178,14 +188,14 @@ function App() {
               ) : maxDiscards > 0 ? (
                 <>
                   <span className="instruction-text">
-                    Selecciona hasta <strong>{maxDiscards}</strong> películas para descartar
+                    Selecciona hasta <strong>{maxKeep}</strong> películas para <strong>conservar</strong>
                   </span>
-                  <span className="instruction-subtext">Optimiza tu mano antes de la ronda final</span>
+                  <span className="instruction-subtext">Armá tu noche perfecta. Las no seleccionadas se queman.</span>
                 </>
               ) : (
                 <>
                   <span className="instruction-text highlight">¡RONDA FINAL!</span>
-                  <span className="instruction-subtext">{tokens <= 0 ? 'Sin fichas: All-in forzado.' : 'Es hora de decidir. ¿Te quedas con esta mano?'}</span>
+                  <span className="instruction-subtext">{tokens <= 0 ? 'Sin fichas: All-in forzado.' : 'Es hora de decidir. ¿Te quedás con esta mano?'}</span>
                 </>
               )}
             </div>
@@ -199,16 +209,16 @@ function App() {
 
             <div className="controls-wrapper">
               {maxDiscards > 0 && gameState !== 'revealing' && (
-                <Tooltip text={`Cuesta ${selectedIds.length * 10} tokens de energía`}>
+                <Tooltip text={`Quemás ${hand.length - selectedIds.length} cartas • Cuesta ${(hand.length - selectedIds.length) * 10} tokens`}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="btn-danger action-btn"
+                    className="btn-primary action-btn"
                     onClick={handleSwap}
                     disabled={selectedIds.length === 0 || loading}
                   >
-                    <span className="btn-icon">♻️</span>
-                    {loading ? 'Cargando...' : `Descartar Seleccionadas (${selectedIds.length})`}
+                    <span className="btn-icon">✨</span>
+                    {loading ? 'Aprendiendo...' : `Conservar Selección (${selectedIds.length})`}
                   </motion.button>
                 </Tooltip>
               )}

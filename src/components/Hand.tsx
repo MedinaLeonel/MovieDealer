@@ -24,7 +24,13 @@ export function Hand({ cards, selectedIds, onToggle, isRevealing }: HandProps) {
                             y: 0,
                             rotate: isRevealing ? (index - 2) * 5 : 0
                         }}
-                        exit={{ opacity: 0, y: -500, rotate: 15, scale: 0.5 }}
+                        exit={{
+                            opacity: 0,
+                            y: 80,
+                            scale: 0.7,
+                            filter: 'grayscale(1) blur(4px)',
+                            transition: { duration: 0.5, ease: 'easeIn' }
+                        }}
                         transition={{
                             type: 'spring',
                             stiffness: 300,

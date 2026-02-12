@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Movie, GameState, DifficultyLevel, FilterSettings, WinningStats } from '../lib/types';
+import type { Movie, GameState, DifficultyLevel, FilterSettings, WinningStats, SessionPreferences } from '../lib/types';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'PLACEHOLDER_KEY';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -20,10 +20,21 @@ export function useMovieDealer() {
     // Game Logic State
     const [round, setRound] = useState(1);
     const [streak, setStreak] = useState(0);
-    const [tokens, setTokens] = useState(100);
+    const [tokens, setTokens] = useState(300); // v0.6.0: Increased from 100 to support deeper exploration
     const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
     const [filters, setFilters] = useState<FilterSettings>({ genres: [], decades: [] });
     const [discarded, setDiscarded] = useState<Movie[]>([]);
+    const [learningMessage, setLearningMessage] = useState<string | null>(null);
+
+    // v0.5.0: Session Preferences (adaptive learning)
+    const [sessionPreferences, setSessionPreferences] = useState<SessionPreferences>({
+        desiredGenres: {},
+        vetoedGenres: {},
+        avgRating: 0,
+        avgYear: 0,
+        totalKept: 0,
+        totalDiscarded: 0
+    });
 
     const moviePool = useRef<Movie[]>([]);
     const prevFilters = useRef<FilterSettings | null>(null);
@@ -97,11 +108,11 @@ export function useMovieDealer() {
             // Modo Chill: Hits masivos
             url += '&vote_count.gte=8000&sort_by=popularity.desc';
         } else if (level <= 4) {
-            // Modo Sorpréndeme: Calidad con Factor Rareza
-            url += '&vote_average.gte=7.0&popularity.lte=500&sort_by=vote_average.desc';
+            // Modo Sorpréndeme: Calidad con Factor Rareza (v0.3.5: Suelo de votos)
+            url += '&vote_average.gte=7.0&popularity.lte=800&vote_count.gte=500&sort_by=vote_average.desc';
         } else {
-            // Modo Leyenda: Foco en Clásicos y Culto
-            url += '&vote_average.gte=7.8&primary_release_date.lte=2000-01-01&sort_by=vote_average.desc';
+            // Modo Leyenda: Foco en Clásicos y Culto (v0.3.5: Calidad Oro)
+            url += '&vote_average.gte=8.0&vote_count.gte=1000&primary_release_date.lte=1995-01-01&sort_by=vote_average.desc';
         }
 
         // Sesgo positivo por perfil (Top 3 géneros ganadores)
@@ -110,16 +121,25 @@ export function useMovieDealer() {
             .slice(0, 3)
             .map(x => x[0]);
 
-        if (topGenres.length > 0 && (!gameFilters.genres || gameFilters.genres.length === 0)) {
-            // Solo sesgamos si el usuario no eligió filtros manuales
+        if (topGenres.length > 0 && (!gameFilters.genres || gameFilters.genres.length === 0) && (!gameFilters.genresToFollow || gameFilters.genresToFollow.length === 0)) {
+            // Solo sesgamos si el usuario no eligió filtros manuales ni hay preferencia de sesión
             url += `&with_genres=${topGenres.join('|')}`;
         }
 
-        if (gameFilters.genres && gameFilters.genres.length > 0) {
+        // v0.5.0: Géneros deseados (from kept cards) tienen prioridad
+        if (gameFilters.genresToFollow && gameFilters.genresToFollow.length > 0) {
+            url += `&with_genres=${gameFilters.genresToFollow.join('|')}`;
+        } else if (gameFilters.genres && gameFilters.genres.length > 0) {
+            // v0.4.0: Operador OR para géneros (Pipe |)
             url += `&with_genres=${gameFilters.genres.join('|')}`;
         }
 
-        // 3. Fallback de Décadas (v0.2.1)
+        // v0.5.0: Géneros vetados (from discarded cards)
+        if (gameFilters.genresToExclude && gameFilters.genresToExclude.length > 0) {
+            url += `&without_genres=${gameFilters.genresToExclude.join(',')}`;
+        }
+
+        // 3. Rango Cronológico v0.4.0
         if (gameFilters.decades && gameFilters.decades.length > 0) {
             const years = gameFilters.decades.map(d => parseInt(d));
             const minYear = Math.min(...years);
@@ -137,13 +157,32 @@ export function useMovieDealer() {
         }
 
         url += extraParams;
-        const randomPage = Math.floor(Math.random() * 5) + 1;
-        url += `&page=${randomPage}`;
 
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`Error de API: ${response.status}`);
-            let data = await response.json();
+            // v0.6.0: Fetch 10 pages in parallel for deep discovery (~200 movies instead of ~60)
+            const randomStartPage = Math.floor(Math.random() * 5) + 1; // Start from page 1-5
+            const numPages = 10; // Fetch 10 consecutive pages
+            const pagePromises = Array.from({ length: numPages }, (_, i) =>
+                fetch(`${url}&page=${randomStartPage + i}`)
+            );
+
+            console.log(`[Deep Discovery] Fetching ${numPages} pages starting from page ${randomStartPage}...`);
+            const responses = await Promise.all(pagePromises);
+
+            // Check if all responses are ok
+            for (const response of responses) {
+                if (!response.ok) throw new Error(`Error de API: ${response.status}`);
+            }
+
+            // Parse all responses
+            const dataArrays = await Promise.all(responses.map(r => r.json()));
+
+            // Combine all results into a single array
+            let data = {
+                results: dataArrays.flatMap(d => d.results || [])
+            };
+
+            console.log(`[Deep Discovery] ✅ Fetched ${data.results.length} movies from ${numPages} pages — Pool is ${Math.round(data.results.length / 20)}x larger!`);
 
             // GRACEFUL FALLBACK (v0.2.1/v0.2.2)
             if ((!data.results || data.results.length < 10) && (gameFilters.decades?.length || gameFilters.person)) {
@@ -160,11 +199,26 @@ export function useMovieDealer() {
                     fallbackUrl += `&primary_release_date.gte=${minYear}-01-01&primary_release_date.lte=${maxYear}-12-31`;
                 }
 
-                fallbackUrl += `&vote_count.gte=50`;
+                if (level >= 5) {
+                    fallbackUrl += `&vote_count.gte=100`; // Prohibido bajar de 100 en Nivel 6
+                    fallbackUrl += `&vote_average.gte=7.5`;
+                } else {
+                    fallbackUrl += `&vote_count.gte=50`;
+                }
 
-                const fallbackRes = await fetch(fallbackUrl);
-                if (fallbackRes.ok) {
-                    data = await fallbackRes.json();
+                // v0.5.1: Fallback también usa 2 páginas
+                const fallbackPromises = [
+                    fetch(`${fallbackUrl}&page=1`),
+                    fetch(`${fallbackUrl}&page=2`)
+                ];
+
+                const fallbackResponses = await Promise.all(fallbackPromises);
+                if (fallbackResponses.every(r => r.ok)) {
+                    const fallbackDataArrays = await Promise.all(fallbackResponses.map(r => r.json()));
+                    data = {
+                        results: fallbackDataArrays.flatMap(d => d.results || [])
+                    };
+                    console.log(`[Fallback] Fetched ${data.results.length} movies from ${fallbackPromises.length} pages`);
                 }
             }
 
@@ -286,8 +340,37 @@ export function useMovieDealer() {
 
             if (initialPool.filter(m => !sessionSeen.has(m.id)).length < 5) {
                 console.log("Pool aún pequeño: Relajando rating mínimo...");
-                const lowRating = await fetchMoviesByDifficulty(difficulty, { ...filters, minRating: 5 }, '&page=3');
+                const lowRating = await fetchMoviesByDifficulty(difficulty, {
+                    ...filters,
+                    minRating: difficulty === 6 ? 7.5 : 5 // Nivel 6 no baja de 7.5
+                }, '&page=3');
                 initialPool = [...initialPool, ...lowRating];
+            }
+
+            // v0.3.5 Especial: Fallback Curado para Nivel 6
+            if (difficulty === 6 && initialPool.filter(m => !sessionSeen.has(m.id)).length < 5) {
+                console.log("Nivel 6 agotado: Inyectando Clásicos de Culto...");
+                const classicIds = [680, 1398, 346, 238, 424, 15, 429, 103, 11]; // Pulp Fiction, Stalker, 7 Samurai, etc.
+                const classicPromises = classicIds.map(async (id) => {
+                    const res = await fetch(`${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}&language=es-ES`);
+                    if (res.ok) {
+                        const m = await res.json();
+                        return {
+                            id: m.id,
+                            title: m.title,
+                            year: m.release_date?.split('-')[0] || 'N/A',
+                            rating: m.vote_average,
+                            poster: m.poster_path ? `${POSTER_BASE_URL}${m.poster_path}` : '',
+                            overview: m.overview,
+                            genre: m.genres?.map((g: any) => String(g.id)) || [],
+                            isMystery: true, // Se inyecta como "Mystery Card de Clásico"
+                            mysteryText: "TESORO DE LA CINETECA"
+                        };
+                    }
+                    return null;
+                });
+                const classics = (await Promise.all(classicPromises)).filter(Boolean) as Movie[];
+                initialPool = [...initialPool, ...classics];
             }
 
             const selectedHand: Movie[] = [];
@@ -319,19 +402,20 @@ export function useMovieDealer() {
                 }
             }
 
-            // Fallback Crítico: Mystery Cards (v0.2.2)
+            // Fallback Crítico: Mystery Cards (v0.4.0)
             if (selectedHand.length < 5) {
                 console.warn("Algoritmo agotado: Insertando Mystery Cards para completar mano.");
                 while (selectedHand.length < 5) {
                     selectedHand.push({
                         id: -100 - selectedHand.length,
-                        title: "Carta de Misterio",
+                        title: "Mazo Agotado",
                         year: "????",
                         rating: 0,
-                        poster: "", // Se maneja en el CSS/Componente
+                        poster: "",
                         genre: [],
-                        overview: "El Dealer está barajando... esta carta se revelará como un comodín en futuras versiones o simplemente representa el límite de tu búsqueda actual.",
-                        isMystery: true
+                        overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos. Intenta relajar los filtros para la próxima partida.",
+                        isMystery: true,
+                        mysteryText: "JOYA DEL DEALER"
                     });
                 }
             }
@@ -352,64 +436,157 @@ export function useMovieDealer() {
         }
     }, [difficulty, filters, fetchMoviesByDifficulty, saveSeenToStorage, seenMovieIds]);
 
-    // 7. Swapping Adaptativo
-    const swapCards = useCallback(async (idsToDiscard: number[]) => {
-        const max = (round === 1) ? 4 : (round === 2) ? 3 : (round === 3) ? 2 : 0;
-        if (tokens <= 0 || idsToDiscard.length > max || idsToDiscard.length === 0) return;
+    // 7. v0.5.0: Selection Protocol — Swapping receives keepIds (cards to CONSERVE)
+    const swapCards = useCallback(async (keepIds: number[]) => {
+        // Derive what to replace: everything NOT in keepIds
+        const keptCards = hand.filter(m => keepIds.includes(m.id));
+        const discardedCards = hand.filter(m => !keepIds.includes(m.id));
+        const numToReplace = discardedCards.length;
+
+        if (tokens <= 0 || numToReplace === 0) return;
 
         setLoading(true);
-        const keptCards = hand.filter(m => !idsToDiscard.includes(m.id));
+        setLearningMessage('Aprendiendo tus gustos...');
+
+        // --- SESSION LEARNING ENGINE ---
+        setSessionPreferences(prev => {
+            const newPrefs = { ...prev };
+
+            // Lógica Positiva: sumar géneros conservados
+            keptCards.forEach(m => {
+                m.genre.forEach(g => {
+                    newPrefs.desiredGenres[g] = (newPrefs.desiredGenres[g] || 0) + 1;
+                });
+            });
+
+            // Lógica de Veto: sumar géneros descartados
+            discardedCards.forEach(m => {
+                m.genre.forEach(g => {
+                    newPrefs.vetoedGenres[g] = (newPrefs.vetoedGenres[g] || 0) + 1;
+                });
+            });
+
+            // Cruce de Datos: promedio de rating y año de las conservadas
+            const allKeptRatings = [...(prev.totalKept > 0 ? [prev.avgRating * prev.totalKept] : []), ...keptCards.map(m => m.rating)];
+            const allKeptYears = [...(prev.totalKept > 0 ? [prev.avgYear * prev.totalKept] : []), ...keptCards.filter(m => !isNaN(Number(m.year))).map(m => Number(m.year))];
+
+            newPrefs.totalKept = prev.totalKept + keptCards.length;
+            newPrefs.totalDiscarded = prev.totalDiscarded + discardedCards.length;
+            newPrefs.avgRating = allKeptRatings.reduce((a, b) => a + b, 0) / Math.max(newPrefs.totalKept, 1);
+            newPrefs.avgYear = allKeptYears.reduce((a, b) => a + b, 0) / Math.max(allKeptYears.length, 1);
+
+            return newPrefs;
+        });
+
+        // Build adaptive filters from session preferences
+        const currentPrefs = sessionPreferences;
+        const desiredGenreIds = Object.entries(currentPrefs.desiredGenres)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([id]) => id);
+
+        // Veto: genres discarded >= 3 times get excluded
+        const vetoedGenreIds = Object.entries(currentPrefs.vetoedGenres)
+            .filter(([, count]) => count >= 3)
+            .map(([id]) => id)
+            .filter(id => !desiredGenreIds.includes(id)); // Don't veto if also desired
+
+        console.log('[v0.5.0 Learning]', {
+            desired: desiredGenreIds,
+            vetoed: vetoedGenreIds,
+            avgRating: currentPrefs.avgRating.toFixed(1),
+            avgYear: Math.round(currentPrefs.avgYear)
+        });
+
         const handIds = new Set(keptCards.map(m => m.id));
         const sessionSeen = new Set(seenMovieIds);
 
+        // Heurística de reemplazo: usar géneros deseados y vetar los rechazados
         const keptGenres = Array.from(new Set(keptCards.flatMap(m => m.genre)));
         const bestMovie = [...keptCards].sort((a, b) => b.rating - a.rating)[0];
         const targetDecade = bestMovie ? Math.floor(Number(bestMovie.year) / 10) * 10 : null;
 
         let replacements: Movie[] = [];
-
-        // Heurística de reemplazo único
         const validFromPool = moviePool.current.filter(m => !handIds.has(m.id) && !sessionSeen.has(m.id));
 
+        // Priority 1: Match kept genres + decade
         if (keptGenres.length > 0) {
             const intersected = validFromPool.filter(m => {
                 const isDecade = targetDecade ? Math.floor(Number(m.year) / 10) * 10 === targetDecade : true;
                 const hasGenre = m.genre.some(g => keptGenres.includes(g));
-                return isDecade && hasGenre;
+                const notVetoed = !m.genre.some(g => vetoedGenreIds.includes(g));
+                return isDecade && hasGenre && notVetoed;
             });
-            replacements = intersected.slice(0, idsToDiscard.length);
+            replacements = intersected.slice(0, numToReplace);
         }
 
-        if (replacements.length < idsToDiscard.length) {
-            const stillNeeded = idsToDiscard.length - replacements.length;
+        // Priority 2: From pool without decade restriction
+        if (replacements.length < numToReplace) {
+            const stillNeeded = numToReplace - replacements.length;
             const chosenIds = new Set(replacements.map(r => r.id));
 
-            // Forzamos unicidad total vs mano y vistos
             const fallback = validFromPool
-                .filter(m => !chosenIds.has(m.id) && !handIds.has(m.id))
+                .filter(m => !chosenIds.has(m.id) && !handIds.has(m.id) && !m.genre.some(g => vetoedGenreIds.includes(g)))
                 .slice(0, stillNeeded);
 
             replacements = [...replacements, ...fallback];
         }
 
-        // Si aún faltan, usamos Mystery Cards
-        while (replacements.length < idsToDiscard.length) {
+        // Priority 3: Fetch new movies with adaptive filters from TMDB
+        if (replacements.length < numToReplace) {
+            try {
+                const adaptiveFilters: FilterSettings = {
+                    ...filters,
+                    genresToFollow: desiredGenreIds.length > 0 ? desiredGenreIds : undefined,
+                    genresToExclude: vetoedGenreIds.length > 0 ? vetoedGenreIds : undefined,
+                };
+                const freshMovies = await fetchMoviesByDifficulty(difficulty, adaptiveFilters, '&page=2');
+                const validFresh = freshMovies.filter(m => !handIds.has(m.id) && !sessionSeen.has(m.id));
+                const stillNeeded = numToReplace - replacements.length;
+                replacements = [...replacements, ...validFresh.slice(0, stillNeeded)];
+            } catch (e) {
+                console.warn('Adaptive fetch failed, using fallback', e);
+            }
+        }
+
+        // Priority 4: QA Fallback — relax date filter but keep genre veto
+        if (replacements.length < numToReplace) {
+            try {
+                const relaxedFilters: FilterSettings = {
+                    ...filters,
+                    decades: [], // Relax date
+                    genresToFollow: desiredGenreIds.length > 0 ? desiredGenreIds : undefined,
+                    genresToExclude: vetoedGenreIds.length > 0 ? vetoedGenreIds : undefined,
+                };
+                const emergencyMovies = await fetchMoviesByDifficulty(difficulty, relaxedFilters, '&page=4');
+                const validEmergency = emergencyMovies.filter(m => !handIds.has(m.id) && !sessionSeen.has(m.id) && !replacements.some(r => r.id === m.id));
+                const stillNeeded = numToReplace - replacements.length;
+                replacements = [...replacements, ...validEmergency.slice(0, stillNeeded)];
+            } catch (e) {
+                console.warn('Emergency fetch failed', e);
+            }
+        }
+
+        // Priority 5: Mystery Cards as last resort
+        while (replacements.length < numToReplace) {
             replacements.push({
                 id: -500 - replacements.length,
-                title: "Mystery Replacement",
+                title: "Mazo Agotado",
                 year: "???",
                 rating: 0,
                 poster: "",
                 genre: [],
-                overview: "El mazo está vacío. Esta carta de misterio rellena tu mano para que puedas seguir jugando.",
-                isMystery: true
+                overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos.",
+                isMystery: true,
+                mysteryText: "JOYA DEL DEALER"
             });
         }
 
         let newHand = [...keptCards, ...replacements];
         saveSeenToStorage(replacements.filter(m => !m.isMystery).map(m => m.id));
+        setDiscarded(prev => [...prev, ...discardedCards]);
 
-        setTokens(prev => Math.max(0, prev - (idsToDiscard.length * 10)));
+        setTokens(prev => Math.max(0, prev - (numToReplace * 10)));
         const nextRound = round + 1;
         setRound(nextRound);
 
@@ -419,7 +596,8 @@ export function useMovieDealer() {
 
         setHand(newHand);
         setLoading(false);
-    }, [hand, round, tokens, seenMovieIds, executeDealerBurn, saveSeenToStorage]);
+        setTimeout(() => setLearningMessage(null), 2000);
+    }, [hand, round, tokens, seenMovieIds, sessionPreferences, difficulty, filters, executeDealerBurn, saveSeenToStorage, fetchMoviesByDifficulty]);
 
     const resetGame = () => {
         setGameState('idle');
@@ -427,8 +605,48 @@ export function useMovieDealer() {
         setWinner(null);
         setRound(1);
         setBurnMessage(null);
+        setLearningMessage(null);
+        setSessionPreferences({
+            desiredGenres: {},
+            vetoedGenres: {},
+            avgRating: 0,
+            avgYear: 0,
+            totalKept: 0,
+            totalDiscarded: 0
+        });
         moviePool.current = [];
     };
+
+    // v0.6.0: Extended to 6 rounds with more generous discard limits for deep discovery
+    // Round progression: 4→4→3→3→2→1 cards can be kept (allowing 1→1→2→2→3→4 to be discarded)
+    const getMaxKeep = () => {
+        if (tokens <= 0) return hand.length; // All-in: must keep all
+        switch (round) {
+            case 1: return 4; // Can discard 1
+            case 2: return 4; // Can discard 1
+            case 3: return 3; // Can discard 2
+            case 4: return 3; // Can discard 2
+            case 5: return 2; // Can discard 3
+            case 6: return 1; // Can discard 4 (final refinement)
+            default: return hand.length; // Stand pat
+        }
+    };
+
+    const getMaxDiscards = () => {
+        if (tokens <= 0) return 0;
+        switch (round) {
+            case 1: return 1;
+            case 2: return 1;
+            case 3: return 2;
+            case 4: return 2;
+            case 5: return 3;
+            case 6: return 4;
+            default: return 0;
+        }
+    };
+
+    const maxKeep = getMaxKeep();
+    const maxDiscards = getMaxDiscards();
 
     return {
         gameState,
@@ -440,7 +658,9 @@ export function useMovieDealer() {
         loading,
         error,
         burnMessage,
-        maxDiscards: (tokens <= 0) ? 0 : (round === 1) ? 4 : (round === 2) ? 3 : (round === 3) ? 2 : 0,
+        learningMessage,
+        maxKeep,
+        maxDiscards,
         difficulty,
         setDifficulty,
         filters,

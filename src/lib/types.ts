@@ -14,6 +14,7 @@ export interface Movie {
     vote_count?: number;
     imdb_id?: string;
     isMystery?: boolean;
+    mysteryText?: string;
 }
 
 export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'revealing' | 'won';
@@ -23,6 +24,17 @@ export interface FilterSettings {
     decades: string[];
     person?: { id: number; name: string; type: 'actor' | 'director' };
     minRating?: number;
+    genresToFollow?: string[];   // v0.5.0: Géneros deseados (from kept cards)
+    genresToExclude?: string[];  // v0.5.0: Géneros vetados (from discarded cards)
+}
+
+export interface SessionPreferences {
+    desiredGenres: Record<string, number>;   // genre_id -> times kept
+    vetoedGenres: Record<string, number>;    // genre_id -> times discarded
+    avgRating: number;
+    avgYear: number;
+    totalKept: number;
+    totalDiscarded: number;
 }
 
 export interface WatchProvider {

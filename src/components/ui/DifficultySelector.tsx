@@ -10,12 +10,12 @@ interface Props {
 }
 
 const LEVELS: { id: DifficultyLevel; label: string; sub: string; desc: string }[] = [
-    { id: 1, label: "Chill", sub: "Gente normal", desc: "Hits masivos y Blockbusters" },
-    { id: 2, label: "¿Qué ver?", sub: "3-4 pelis/mes", desc: "Populares pero con calidad" },
-    { id: 3, label: "Sorpréndeme", sub: "10+ pelis/mes", desc: "Joyas escondidas y buen rating" },
-    { id: 4, label: "Adicto", sub: "30 pelis/mes", desc: "Filtro equilibrado para cinefilia diaria" },
-    { id: 5, label: "Extremo", sub: "Cinefilia pura", desc: "Cine de autor y alta exigencia" },
-    { id: 6, label: "Leyenda", sub: "Historia del Cine", desc: "Clásicos y obras maestras del culto" },
+    { id: 1, label: "Taquilla Mundial", sub: "Brillante y Dorado", desc: "Hits masivos y Blockbusters" },
+    { id: 2, label: "¿Qué ver?", sub: "Popular", desc: "Populares pero con calidad" },
+    { id: 3, label: "Sorpréndeme", sub: "Gemas Ocultas", desc: "Joyas escondidas y buen rating" },
+    { id: 4, label: "Adicto", sub: "Cinefilia Diaria", desc: "Filtro equilibrado para cinefilia diaria" },
+    { id: 5, label: "Extremo", sub: "Autor", desc: "Cine de autor y alta exigencia" },
+    { id: 6, label: "Cineteca", sub: "Archivo Prohibido", desc: "Clásicos y obras maestras del culto" },
 ];
 
 export function DifficultySelector({ level, onChange, onShowInfo }: Props) {

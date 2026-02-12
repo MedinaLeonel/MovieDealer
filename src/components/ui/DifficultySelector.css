@@ -150,3 +150,33 @@
         font-size: 8px;
     }
 }
+
+/* v0.3.5 Aesthetic Signatures */
+
+/* Level 1: Taquilla Mundial (Golden/Brilliant) */
+.diff-btn:nth-child(1).active {
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%) !important;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4) !important;
+    border-color: #ffd700 !important;
+    color: #000 !important;
+}
+
+/* Level 6: Cineteca (Archive/Celuloide) */
+.diff-btn:nth-child(6).active {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.diff-btn:nth-child(6).active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.15;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
