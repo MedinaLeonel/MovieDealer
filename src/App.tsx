@@ -12,6 +12,7 @@ import { FilterMenu } from './components/FilterMenu';
 import { Onboarding } from './components/Onboarding';
 import { ToastFeed } from './components/ToastFeed';
 import { CinematicIntro } from './components/CinematicIntro';
+import { Footer } from './components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function App() {
@@ -292,6 +293,8 @@ function App() {
             </motion.div>
           </AnimatePresence>
         </main>
+
+        <Footer />
       </motion.div>
 
       <Onboarding
