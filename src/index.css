@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Syne:wght@800;900&family=JetBrains+Mono:wght@400&family=Outfit:wght@300;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@800;900&family=JetBrains+Mono:wght@400&family=Outfit:wght@300;700;900&display=swap');
 
 * {
     box-sizing: border-box;
@@ -349,13 +349,18 @@ button:not(:disabled):hover {
 .hero-title {
     font-family: var(--font-display);
     font-size: 3.5rem;
-    /* Reduced from 4.5rem */
     font-weight: 900;
     line-height: 0.85;
     letter-spacing: -0.06em;
     margin-bottom: 0.75rem;
     color: var(--primary);
     text-transform: uppercase;
+}
+
+.hero-title--line2 {
+    margin-top: -0.1em;
+    margin-bottom: 1rem;
+    font-size: 0.88em;
 }
 
 .hero-subtitle {

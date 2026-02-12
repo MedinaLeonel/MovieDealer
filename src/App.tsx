@@ -82,10 +82,9 @@ function App() {
       case 'idle':
         return (
           <div className="hero-section">
-            <h1 className="hero-title">
-              No pienses.<br />Solo elige.
-            </h1>
-            <p className="hero-subtitle">Tu próxima película favorita en 60 segundos.</p>
+            <h1 className="hero-title">MOVIEDEALER</h1>
+            <p className="hero-title hero-title--line2">CRUPIER DE PELÍCULAS.</p>
+            <p className="hero-subtitle">Tu próxima película en 60 segundos.</p>
 
             <DifficultySelector
               level={difficulty}

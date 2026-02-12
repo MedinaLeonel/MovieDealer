@@ -70,7 +70,7 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
             animate={{ opacity: 1 }}
             transition={{ duration: D_WORD_IN, delay: DELAY_2, ease: [0.22, 1, 0.36, 1] }}
           >
-            pienses
+            pienses,
           </motion.p>
           <motion.p
             className="cinematic-intro__line cinematic-intro__line--word"
@@ -86,7 +86,7 @@ export function CinematicIntro({ onComplete }: CinematicIntroProps) {
             animate={{ opacity: 1 }}
             transition={{ duration: D_WORD_IN, delay: DELAY_4, ease: [0.22, 1, 0.36, 1] }}
           >
-            elige
+            elige.
           </motion.p>
           <motion.p
             className="cinematic-intro__line cinematic-intro__line--subtitle"
