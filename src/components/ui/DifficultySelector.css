@@ -41,6 +41,18 @@
     transform: translateY(-1px);
 }
 
+.diff-choose-deck {
+    margin: 0 auto 1rem auto;
+    font-size: 0.85rem;
+    font-family: var(--font-main);
+    color: rgba(var(--primary-rgb), 0.85);
+}
+
+.diff-choose-deck--accent {
+    color: var(--accent);
+    font-weight: 700;
+}
+
 .diff-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

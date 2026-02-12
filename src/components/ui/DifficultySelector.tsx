@@ -25,6 +25,7 @@ export function DifficultySelector({ level, onChange, onShowInfo }: Props) {
             <button className="info-trigger-inline" onClick={onShowInfo}>
                 ¿Cómo funciona? ℹ️
             </button>
+            <p className="diff-choose-deck">Elige tu <span className="diff-choose-deck--accent">mazo</span></p>
             <div className="diff-grid">
                 {LEVELS.map((L) => (
                     <Tooltip key={L.id} text={L.desc}>
