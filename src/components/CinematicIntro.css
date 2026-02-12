@@ -1,0 +1,55 @@
+/* Cinematic intro — pantalla negra y títulos tipo presentación de película */
+
+.cinematic-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cinematic-intro__content {
+  text-align: center;
+  max-width: 90vw;
+  padding: 2rem;
+}
+
+.cinematic-intro__line {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 60px rgba(255, 255, 255, 0.08);
+}
+
+.cinematic-intro__line--word {
+  font-size: clamp(2.5rem, 12vw, 4.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.08em;
+}
+
+.cinematic-intro__line--subtitle {
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(0.6rem, 2.5vw, 0.75rem);
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1.2em;
+}
+
+@media (min-width: 768px) {
+  .cinematic-intro__line--word {
+    font-size: 4.2rem;
+  }
+  .cinematic-intro__line--subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.4em;
+  }
+}
