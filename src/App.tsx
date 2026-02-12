@@ -24,6 +24,7 @@ function App() {
     winner,
     streak,
     tokens,
+    tokensDisplay,
     round,
     loading,
     error,
@@ -256,7 +257,7 @@ function App() {
   return (
     <div className="app-container">
       <Header
-        tokens={tokens}
+        tokensDisplay={tokensDisplay}
         streak={streak}
         onReset={resetGame}
       />

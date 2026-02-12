@@ -5,6 +5,9 @@ const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'PLACEHOLDER_KEY';
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w342';
 
+/** Energía ilimitada para que los usuarios puedan probar sin agotarla (por el momento). */
+const UNLIMITED_TOKENS = 999999;
+
 export function useMovieDealer() {
     const [gameState, setGameState] = useState<GameState>('idle');
     const [hand, setHand] = useState<Movie[]>([]);
@@ -20,7 +23,7 @@ export function useMovieDealer() {
     // Game Logic State
     const [round, setRound] = useState(1);
     const [streak, setStreak] = useState(0);
-    const [tokens, setTokens] = useState(300); // v0.6.0: Increased from 100 to support deeper exploration
+    const [tokens, setTokens] = useState(UNLIMITED_TOKENS); // Energía ilimitada para pruebas
     const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
     const [filters, setFilters] = useState<FilterSettings>({ genres: [], decades: [] });
     const [discarded, setDiscarded] = useState<Movie[]>([]);
@@ -47,17 +50,18 @@ export function useMovieDealer() {
         const storedSeen = localStorage.getItem('movieDealerSeen');
         if (storedSeen) setSeenMovieIds(JSON.parse(storedSeen));
 
-        const storedTokens = localStorage.getItem('movieDealerTokens');
-        if (storedTokens) setTokens(parseInt(storedTokens, 10));
+        // Tokens no se cargan: energía ilimitada por defecto
+        // const storedTokens = localStorage.getItem('movieDealerTokens');
+        // if (storedTokens) setTokens(parseInt(storedTokens, 10));
 
         const storedStats = localStorage.getItem('movieDealerStats');
         if (storedStats) setUserStats(JSON.parse(storedStats));
     }, []);
 
-    // 2. Persist Tokens
-    useEffect(() => {
-        localStorage.setItem('movieDealerTokens', tokens.toString());
-    }, [tokens]);
+    // 2. Persist Tokens (desactivado con energía ilimitada)
+    // useEffect(() => {
+    //     localStorage.setItem('movieDealerTokens', tokens.toString());
+    // }, [tokens]);
 
     // Limpieza de memoria si los filtros cambian drásticamente (v0.2.2)
     useEffect(() => {
@@ -587,8 +591,9 @@ export function useMovieDealer() {
         saveSeenToStorage(replacements.filter(m => !m.isMystery).map(m => m.id));
         setDiscarded(prev => [...prev, ...discardedCards]);
 
-        const tokensCost = discardedCards.length * 10;
-        setTokens(prev => Math.max(0, prev - tokensCost));
+        // Energía ilimitada: no se descuentan tokens
+        // const tokensCost = discardedCards.length * 10;
+        // setTokens(prev => Math.max(0, prev - tokensCost));
         const nextRound = round + 1;
         setRound(nextRound);
 
@@ -654,9 +659,10 @@ export function useMovieDealer() {
         moviePool.current = [];
     };
 
-    // v0.6.1: Siempre puede seleccionar para conservar (hasta 6). Solo se queda sin descartes (tokens).
+    // v0.6.1: Siempre puede seleccionar para conservar (hasta 6). Con energía ilimitada siempre puede descartar.
     const maxKeep = 6;
     const maxDiscards = tokens > 0 ? 6 : 0;
+    const tokensDisplay: string | number = tokens >= UNLIMITED_TOKENS ? '∞' : tokens;
 
     return {
         gameState,
@@ -664,6 +670,7 @@ export function useMovieDealer() {
         winner,
         streak,
         tokens,
+        tokensDisplay,
         round,
         loading,
         error,

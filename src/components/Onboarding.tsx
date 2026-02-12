@@ -36,7 +36,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ isOpen, onClose }) => {
 
                     <div className="onboarding-step">
                         <div className="step-badge">3</div>
-                        <p><strong>300 Tokens de Energía:</strong> Cada carta descartada cuesta 10 tokens. Úsalos sabiamente para explorar el pool completo y encontrar tu película ideal.</p>
+                        <p><strong>Energía ilimitada (por ahora):</strong> Probá sin límites. Descarta y conservá cartas las veces que quieras para explorar el pool y encontrar tu película ideal.</p>
                     </div>
                 </div>
 

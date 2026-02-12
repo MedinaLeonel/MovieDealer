@@ -3,13 +3,13 @@ import { ThemeSelector } from './ui/ThemeSelector';
 import { Tooltip } from './ui/Tooltip';
 
 interface HeaderProps {
-    tokens: number;
+    tokensDisplay: string | number;
     streak: number;
     onReset: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-    tokens,
+    tokensDisplay,
     streak,
     onReset
 }) => {
@@ -30,8 +30,8 @@ export const Header: React.FC<HeaderProps> = ({
                     <ThemeSelector />
                 </div>
                 <div className="stats-group">
-                    <Tooltip text="Energía disponible para descartar cartas" position="bottom">
-                        <div className="tokens-badge">💎 {tokens}</div>
+                    <Tooltip text="Energía ilimitada para probar (por el momento)" position="bottom">
+                        <div className="tokens-badge">💎 {tokensDisplay}</div>
                     </Tooltip>
                     <Tooltip text="Días seguidos descubriendo cine" position="bottom">
                         <div className="streak">🔥 {streak}</div>
