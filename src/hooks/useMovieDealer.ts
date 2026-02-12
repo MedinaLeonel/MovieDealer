@@ -50,9 +50,8 @@ export function useMovieDealer() {
         const storedSeen = localStorage.getItem('movieDealerSeen');
         if (storedSeen) setSeenMovieIds(JSON.parse(storedSeen));
 
-        // Tokens no se cargan: energía ilimitada por defecto
-        // const storedTokens = localStorage.getItem('movieDealerTokens');
-        // if (storedTokens) setTokens(parseInt(storedTokens, 10));
+        // Energía ilimitada: forzar siempre, ignorar localStorage
+        setTokens(UNLIMITED_TOKENS);
 
         const storedStats = localStorage.getItem('movieDealerStats');
         if (storedStats) setUserStats(JSON.parse(storedStats));
