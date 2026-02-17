@@ -10,21 +10,24 @@ El sistema clasifica la experiencia del usuario en 6 niveles, que impactan direc
 
 | Nivel | Etiqueta | Criterio Técnico (TMDB Query) | Perfil de Usuario |
 | :--- | :--- | :--- | :--- |
-| **1-2** | **Chill / ¿Qué ver?** | `vote_count.gte=8000` & `popularity.gte=400` | Usuario casual. Busca éxitos globales y cine comercial (Blockbusters). |
-| **3-4** | **Sorpréndeme / Adicto** | `vote_average.gte=7` & `popularity` entre 100 y 1000 | Espectador habitual. Busca calidad fuera del radar mainstream inmediato. |
-| **5-6** | **Extremo / Leyenda** | `vote_count.gte=500`, `vote_average.gte=7.5`, ordenado por calificación | Cinéfilo puro. Busca clásicos, cine de culto y joyas críticas. |
+| **1-2** | **Chill / ¿Qué ver?** | `vote_count.gte=8000` & `popularity.desc` | Usuario casual. Busca éxitos globales y cine comercial (Blockbusters). |
+| **3-4** | **Sorpréndeme / Adicto** | `vote_average.gte=7`, `popularity <= 800`, `vote_count.gte=500` | Espectador habitual. Busca calidad fuera del radar mainstream inmediato. |
+| **5-6** | **Extremo / Leyenda** | `vote_count.gte=1000`, `vote_average.gte=8.0`, pre-1995 | Cinéfilo puro. Busca clásicos, cine de culto y joyas críticas. |
+
+> 🔑 **Prioridad de Persona (v0.6.1):** Si el usuario selecciona un **Director o Actor**, el sistema omite las restricciones de `vote_count` y `popularity` del nivel para permitir que la filmografía del artista respire, aplicando solo un suelo de calidad mínimo (50-100 votos) para evitar contenido basura.
 
 ---
 
 ## 2. Algoritmo de Reparto Inicial (Initial Deal)
 Ubicado en la función `dealHand` dentro de `useMovieDealer.ts`.
 
-*   **Heurística de Diversidad:** Para evitar una mano monótona (por ejemplo, 5 películas de acción de los 90), el algoritmo utiliza un sistema de **sets de control**:
-    1.  Crea un `Set` para géneros y otro para décadas.
-    2.  Itera sobre el pool de películas obtenido (barajado aleatoriamente).
-    3.  Solo añade una película a la mano si introduce un **nuevo género** o una **nueva década** que no esté presente todavía.
-    4.  Si tras esta pasada no se llega a las 5 cartas de la mano, rellena con el resto de películas disponibles hasta completar.
-*   **Gestión de Memoria:** Filtra cualquier ID contenido en `seenMovieIds` (historial de las últimas 200 películas vistas) para garantizar frescura.
+*   **Deep Discovery Pool (v0.6.0):** Se obtienen 10 páginas de resultados en paralelo (~200 películas) para maximizar la variedad y nutrición del pool.
+*   **Heurística de Diversidad:** Para evitar una mano monótona, el algoritmo utiliza un sistema de **sets de control**:
+    1.  Baraja aleatoriamente el pool masivo.
+    2.  Prioriza películas que coincidan con la selección de **Persona** (si existe).
+    3.  Añade cartas que introduzcan nuevos géneros o décadas.
+    4.  Completa hasta 6 cartas (v0.6.0 hand size).
+*   **Gestión de Memoria:** Filtra cualquier ID contenido en `seenMovieIds` (historial de las últimas 500 películas vistas) para garantizar frescura absoluta.
 
 ---
 
