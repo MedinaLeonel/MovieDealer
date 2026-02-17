@@ -58,8 +58,8 @@ export function useMoviePool() {
         return movies.map((movie: any) => ({
           ...movie,
           media_type: 'movie' as const,
-          year: movie.release_date ? movie.release_date.split('-')[0] : undefined,
-          rating: movie.vote_average,
+          year: movie.release_date ? movie.release_date.split('-')[0] : 'Unknown',
+          rating: movie.vote_average || 0,
           genre: movie.genres?.map((g: any) => g.name) || [],
           isMystery: false,
           mysteryText: undefined,

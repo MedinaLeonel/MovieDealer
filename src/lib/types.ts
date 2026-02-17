@@ -13,10 +13,10 @@ export interface Movie {
   genres: { id: number; name: string; type?: string }[];
   runtime?: number;
   media_type: 'movie' | 'tv';
-  // Propiedades adicionales para compatibilidad
-  year?: string;
-  rating?: number;
-  genre?: string[];
+  // Propiedades adicionales para compatibilidad - con valores por defecto
+  year: string;
+  rating: number;
+  genre: string[];
   isMystery?: boolean;
   mysteryText?: string;
   popularity?: number;
@@ -39,7 +39,7 @@ export interface PoolState {
 export interface FilterSettings {
   genres: string[];
   decades: string[];
-  person?: { id: number; name: string };
+  person?: { id: number; name: string; type?: 'actor' | 'director' };
   minRating?: number;
   genresToFollow?: string[];
   genresToExclude?: string[];
