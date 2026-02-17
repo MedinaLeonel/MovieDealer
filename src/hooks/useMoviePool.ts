@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Movie, PoolSettings, PoolState } from '../lib/types';
+import { useState, useCallback } from 'react';
+import type { PoolSettings, PoolState } from '../lib/types';
 import { TMDB_API_KEY, TMDB_BASE_URL } from '../lib/constants';
 
 export function useMoviePool() {
@@ -46,7 +46,7 @@ export function useMoviePool() {
       }
       
       const responses = await Promise.all(pagePromises);
-      const allMovies = responses.flatMap(async response => {
+      const moviePromises = responses.map(async response => {
         if (!response.ok) {
           console.error(`API Error: ${response.status}`);
           return [];
@@ -55,20 +55,29 @@ export function useMoviePool() {
         const movies = data.results || [];
         
         // Add media_type to all movies
-        return movies.map(movie => ({
+        return movies.map((movie: any) => ({
           ...movie,
-          media_type: 'movie' as const
+          media_type: 'movie' as const,
+          year: movie.release_date ? movie.release_date.split('-')[0] : undefined,
+          rating: movie.vote_average,
+          genre: movie.genres?.map((g: any) => g.name) || [],
+          isMystery: false,
+          mysteryText: undefined,
+          popularity: movie.popularity || 0
         }));
       });
       
+      const movieArrays = await Promise.all(moviePromises);
+      const allMoviesFlat = movieArrays.flat();
+      
       // Shuffle and limit to 200 max
-      const shuffledMovies = moviesWithType
+      const shuffledMovies = allMoviesFlat
         .sort(() => Math.random() - 0.5)
         .slice(0, 200);
       
       const newSeenIds = new Set([
         ...poolState.seenIds,
-        ...shuffledMovies.map(m => m.id)
+        ...shuffledMovies.map((m: any) => m.id)
       ]);
       
       setPoolState({

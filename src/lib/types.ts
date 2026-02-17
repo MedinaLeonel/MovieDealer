@@ -10,9 +10,16 @@ export interface Movie {
   vote_average: number;
   vote_count: number;
   genre_ids: number[];
-  genres: { id: number; name: string }[];
+  genres: { id: number; name: string; type?: string }[];
   runtime?: number;
   media_type: 'movie' | 'tv';
+  // Propiedades adicionales para compatibilidad
+  year?: string;
+  rating?: number;
+  genre?: string[];
+  isMystery?: boolean;
+  mysteryText?: string;
+  popularity?: number;
 }
 
 export interface PoolSettings {
