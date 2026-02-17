@@ -1,19 +1,38 @@
+/* ══════════════════════════════════════════
+   Footer.css — MOBILE-FIRST
+   ══════════════════════════════════════════ */
+
 .app-footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
   background: rgba(0, 0, 0, 0.4);
   border-top: 1px solid var(--glass-border);
   flex-shrink: 0;
 }
 
+@media (min-width: 480px) {
+  .app-footer {
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+}
+
 .app-footer__text {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: rgba(var(--primary-rgb), 0.6);
   font-family: var(--font-main);
+  text-align: center;
+}
+
+@media (min-width: 480px) {
+  .app-footer__text {
+    font-size: 0.7rem;
+  }
 }
 
 .app-footer__heart {
@@ -23,11 +42,18 @@
 .app-footer__github {
   color: rgba(var(--primary-rgb), 0.7);
   transition: color 0.2s ease, transform 0.2s ease;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.app-footer__github:hover {
-  color: var(--primary);
-  transform: scale(1.1);
+@media (hover: hover) {
+  .app-footer__github:hover {
+    color: var(--primary);
+    transform: scale(1.1);
+  }
 }
 
 .app-footer__github:focus-visible {

@@ -1,39 +1,75 @@
+/* ══════════════════════════════════════════
+   WatchProviders.css — MOBILE-FIRST
+   ══════════════════════════════════════════ */
+
 .watch-providers-container {
-    margin-top: 1.5rem;
-    padding: 1.2rem;
+    margin-top: 1rem;
+    padding: 1rem;
     background: rgba(var(--primary-rgb), 0.05);
-    border-radius: 16px;
+    border-radius: 12px;
     border: 1px solid rgba(var(--accent-rgb), 0.2);
     width: 100%;
     max-width: 500px;
 }
 
+@media (min-width: 480px) {
+    .watch-providers-container {
+        margin-top: 1.5rem;
+        padding: 1.2rem;
+        border-radius: 16px;
+    }
+}
+
 .providers-header-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+@media (min-width: 480px) {
+    .providers-header-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
 }
 
 .section-title {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     color: var(--accent);
     margin-bottom: 0;
     opacity: 0.8;
+}
+
+@media (min-width: 480px) {
+    .section-title {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
 }
 
 .runtime-info {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--primary);
     background: rgba(var(--primary-rgb), 0.1);
     padding: 2px 10px;
     border-radius: 4px;
     font-weight: 600;
+    align-self: flex-start;
+}
+
+@media (min-width: 480px) {
+    .runtime-info {
+        font-size: 0.8rem;
+        align-self: auto;
+    }
 }
 
 .stremio-logo-svg {
@@ -43,59 +79,108 @@
 .providers-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 480px) {
+    .providers-list {
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
 }
 
 .provider-pill {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.7rem;
     border-radius: 50px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+@media (min-width: 480px) {
+    .provider-pill {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
 .provider-logo {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 4px;
+}
+
+@media (min-width: 480px) {
+    .provider-logo {
+        width: 20px;
+        height: 20px;
+    }
 }
 
 .no-providers {
     font-style: italic;
     opacity: 0.6;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
 
+@media (min-width: 480px) {
+    .no-providers {
+        font-size: 0.9rem;
+    }
+}
+
+/* ──────── Streaming Actions ──────── */
 .streaming-actions {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
     align-items: center;
+}
+
+@media (min-width: 480px) {
+    .streaming-actions {
+        flex-direction: row;
+        gap: 1rem;
+    }
 }
 
 .stremio-btn {
-    flex: 1;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.8rem;
+    gap: 0.6rem;
     background: linear-gradient(135deg, #7F5AF0 0%, #462DB0 100%);
     color: white;
     border: none;
-    padding: 0.8rem 1.2rem;
+    padding: 0.8rem 1rem;
     border-radius: 12px;
     font-weight: 700;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(127, 90, 240, 0.3);
+    min-height: var(--touch-min);
 }
 
-.stremio-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(127, 90, 240, 0.4);
+@media (min-width: 480px) {
+    .stremio-btn {
+        flex: 1;
+        width: auto;
+        gap: 0.8rem;
+        padding: 0.8rem 1.2rem;
+    }
+}
+
+@media (hover: hover) {
+    .stremio-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(127, 90, 240, 0.4);
+    }
 }
 
 .stremio-btn:disabled {
@@ -110,12 +195,21 @@
     color: #F5C518;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 0.5rem;
+    min-height: var(--touch-min);
 }
 
-.imdb-link:hover {
-    text-decoration: underline;
+@media (min-width: 480px) {
+    .imdb-link {
+        font-size: 0.9rem;
+    }
+}
+
+@media (hover: hover) {
+    .imdb-link:hover {
+        text-decoration: underline;
+    }
 }
 
 .providers-loading {

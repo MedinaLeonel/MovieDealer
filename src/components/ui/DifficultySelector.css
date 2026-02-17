@@ -1,51 +1,98 @@
+/* ══════════════════════════════════════════
+   DifficultySelector.css — MOBILE-FIRST
+   Level selection grid
+   ══════════════════════════════════════════ */
+
 .difficulty-container {
-    margin: 2.5rem auto;
+    margin: 1.5rem auto;
     width: 100%;
     max-width: 800px;
-    padding: 0 1.5rem;
+    padding: 0 0.75rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
 }
 
+@media (min-width: 480px) {
+    .difficulty-container {
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .difficulty-container {
+        margin: 2.5rem auto;
+        padding: 0 1.5rem;
+    }
+}
+
 .diff-title {
     font-family: var(--font-mono);
     text-align: center;
-    font-size: 0.75rem;
-    letter-spacing: 0.3em;
-    margin-bottom: 0.5rem;
-    /* Reduced from 2rem */
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.4rem;
     opacity: 0.4;
     text-transform: uppercase;
 }
 
+@media (min-width: 480px) {
+    .diff-title {
+        font-size: 0.75rem;
+        letter-spacing: 0.3em;
+        margin-bottom: 0.5rem;
+    }
+}
+
 .info-trigger-inline {
     display: block;
-    margin: 0 auto 1.5rem auto;
+    margin: 0 auto 1rem auto;
     background: rgba(var(--primary-rgb), 0.05);
     border: 1px solid var(--glass-border);
     color: var(--primary);
     padding: 6px 12px;
     border-radius: 20px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-family: var(--font-mono);
     cursor: pointer;
     transition: all 0.2s;
     opacity: 0.6;
+    min-height: var(--touch-min);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.info-trigger-inline:hover {
-    background: rgba(var(--primary-rgb), 0.1);
-    opacity: 1;
-    transform: translateY(-1px);
+@media (min-width: 480px) {
+    .info-trigger-inline {
+        margin-bottom: 1.5rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media (hover: hover) {
+    .info-trigger-inline:hover {
+        background: rgba(var(--primary-rgb), 0.1);
+        opacity: 1;
+        transform: translateY(-1px);
+    }
 }
 
 .diff-choose-deck {
-    margin: 0 auto 1rem auto;
-    font-size: 0.85rem;
+    margin: 0 auto 0.75rem auto;
+    font-size: 0.8rem;
     font-family: var(--font-main);
     color: rgba(var(--primary-rgb), 0.85);
+    text-align: center;
+}
+
+@media (min-width: 480px) {
+    .diff-choose-deck {
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+    }
 }
 
 .diff-choose-deck--accent {
@@ -53,13 +100,20 @@
     font-weight: 700;
 }
 
+/* ──────── Grid Layout ──────── */
 .diff-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.5rem;
     width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
+}
+
+@media (min-width: 480px) {
+    .diff-grid {
+        gap: 0.75rem;
+    }
 }
 
 @media (min-width: 768px) {
@@ -69,27 +123,42 @@
     }
 }
 
+/* ──────── Difficulty Buttons ──────── */
 .diff-btn {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
-    padding: 0.75rem 0.5rem;
+    padding: 0.6rem 0.4rem;
     color: var(--primary);
     display: flex;
     flex-direction: row;
-    /* Horizontal layout saves vertical space */
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.6rem;
     transition: all 0.2s;
     cursor: pointer;
-    min-height: 60px;
+    min-height: var(--touch-min);
     width: 100%;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.diff-btn:hover {
-    background: rgba(var(--primary-rgb), 0.05);
-    border-color: rgba(var(--primary-rgb), 0.4);
-    transform: translateY(-2px);
+@media (min-width: 480px) {
+    .diff-btn {
+        padding: 0.75rem 0.5rem;
+        gap: 0.8rem;
+        min-height: 60px;
+    }
+}
+
+@media (hover: hover) {
+    .diff-btn:hover {
+        background: rgba(var(--primary-rgb), 0.05);
+        border-color: rgba(var(--primary-rgb), 0.4);
+        transform: translateY(-2px);
+    }
+}
+
+.diff-btn:active {
+    transform: scale(0.97);
 }
 
 .diff-btn.active {
@@ -97,8 +166,14 @@
     border-color: var(--accent);
     color: var(--bg-color) !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transform: scale(1.05);
+    transform: scale(1.03);
     font-weight: 900;
+}
+
+@media (min-width: 768px) {
+    .diff-btn.active {
+        transform: scale(1.05);
+    }
 }
 
 .diff-btn.active * {
@@ -107,9 +182,15 @@
 
 .diff-num {
     font-family: var(--font-display);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 800;
     opacity: 0.3;
+}
+
+@media (min-width: 480px) {
+    .diff-num {
+        font-size: 1.5rem;
+    }
 }
 
 .diff-btn.active .diff-num {
@@ -124,46 +205,34 @@
 
 .diff-text strong {
     font-family: var(--font-display);
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     font-weight: 700;
     margin-bottom: 2px;
     text-transform: uppercase;
 }
 
+@media (min-width: 480px) {
+    .diff-text strong {
+        font-size: 0.9rem;
+    }
+}
+
 .diff-text span {
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.5rem;
     opacity: 0.5;
     letter-spacing: 0.05em;
 }
 
-@media (max-width: 600px) {
-    .diff-grid {
-        grid-template-columns: repeat(2, 1fr);
-        /* 2 columns to save vertical space */
-        gap: 0.5rem;
-    }
-
-    .diff-btn {
-        min-height: 80px;
-        /* Reduced height */
-        padding: 0.8rem 0.4rem;
-    }
-
-    .diff-num {
-        font-size: 1.2rem;
-    }
-
-    .diff-text strong {
-        font-size: 11px;
-    }
-
+@media (min-width: 480px) {
     .diff-text span {
-        font-size: 8px;
+        font-size: 0.6rem;
     }
 }
 
-/* v0.3.5 Aesthetic Signatures */
+/* ══════════════════════════════════════════
+   v0.3.5 Aesthetic Signatures
+   ══════════════════════════════════════════ */
 
 /* Level 1: Taquilla Mundial (Golden/Brilliant) */
 .diff-btn:nth-child(1).active {

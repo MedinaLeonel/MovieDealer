@@ -274,7 +274,7 @@ function App() {
             ease: [0.22, 1, 0.36, 1],
             delay: introDone ? 0 : 0,
           }}
-          style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, pointerEvents: introDone ? 'auto' : 'none' }}
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', pointerEvents: introDone ? 'auto' : 'none' }}
         >
           <Header
             tokensDisplay={tokensDisplay}
