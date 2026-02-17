@@ -299,14 +299,14 @@ function App() {
 
           <Footer />
         </motion.div>
-
-        <Onboarding
-          isOpen={showOnboarding}
-          onClose={() => setShowOnboarding(false)}
-        />
-        <ToastFeed />
-        <StreamingModal />
       </div>
+
+      <Onboarding
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
+      <ToastFeed />
+      <StreamingModal />
     </StreamingProvider>
   );
 }
