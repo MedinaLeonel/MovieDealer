@@ -107,7 +107,16 @@ export function useMovieDealer() {
         let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&include_adult=false`;
 
         // Especificaciones del algoritmo v0.2.0
-        if (level <= 2) {
+        if (gameFilters.person) {
+            // Priority Selection: Only apply basic quality soil to avoid garbage, 
+            // but let the person's filmography breathe.
+            url += '&sort_by=popularity.desc';
+            if (level >= 5) {
+                url += '&vote_count.gte=100&vote_average.gte=7.0';
+            } else {
+                url += '&vote_count.gte=50';
+            }
+        } else if (level <= 2) {
             // Modo Chill: Hits masivos
             url += '&vote_count.gte=8000&sort_by=popularity.desc';
         } else if (level <= 4) {
@@ -341,9 +350,11 @@ export function useMovieDealer() {
             let initialPool = await fetchMoviesByDifficulty(difficulty, filters);
 
             // Search Expansion (v0.2.2)
-            if (initialPool.length < 15 && filters.person) {
-                console.log("Pool pequeño: Eliminando filtro de persona para completar...");
-                const expanded = await fetchMoviesByDifficulty(difficulty, { ...filters, person: undefined });
+            if (initialPool.length < 10 && filters.person) {
+                console.log("Pool pequeño para persona: Intentando expansión sin filtros restrictivos...");
+                // Note: fetchMoviesByDifficulty already relaxes when person is present, 
+                // but here we might remove genres if still empty.
+                const expanded = await fetchMoviesByDifficulty(difficulty, { ...filters, genres: [] });
                 initialPool = [...initialPool, ...expanded];
             }
 

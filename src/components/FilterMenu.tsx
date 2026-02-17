@@ -93,8 +93,8 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                     animate={{ opacity: 1, x: 0 }}
                     className="filter-section"
                 >
-                    <h3>GÉNEROS</h3>
-                    <div className="chip-group">
+                    <h3 className="filter-title">GÉNEROS</h3>
+                    <div className="filter-chips">
                         {GENRES.map((g, i) => (
                             <motion.button
                                 initial={{ scale: 0.8, opacity: 0 }}
@@ -102,7 +102,7 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                                 transition={{ delay: i * 0.02 }}
                                 whileTap={{ scale: 0.95 }}
                                 key={g.id}
-                                className={`chip ${filters.genres.includes(g.id) ? 'active' : ''}`}
+                                className={`filter-chip ${filters.genres.includes(g.id) ? 'active' : ''}`}
                                 onClick={() => handleToggleGenre(g.id)}
                             >
                                 {g.name}
@@ -117,8 +117,8 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                     transition={{ delay: 0.2 }}
                     className="filter-section"
                 >
-                    <h3>DÉCADAS</h3>
-                    <div className="chip-group">
+                    <h3 className="filter-title">DÉCADAS</h3>
+                    <div className="filter-chips">
                         {DECADES.map((d, i) => (
                             <motion.button
                                 initial={{ scale: 0.8, opacity: 0 }}
@@ -126,7 +126,7 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                                 transition={{ delay: 0.2 + (i * 0.02) }}
                                 whileTap={{ scale: 0.95 }}
                                 key={d.id}
-                                className={`chip ${filters.decades.includes(d.id) ? 'active' : ''}`}
+                                className={`filter-chip ${filters.decades.includes(d.id) ? 'active' : ''}`}
                                 onClick={() => handleToggleDecade(d.id)}
                             >
                                 {d.name}
@@ -141,7 +141,7 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                     transition={{ delay: 0.4 }}
                     className="filter-section"
                 >
-                    <h3>DIRECTOR O ACTOR</h3>
+                    <h3 className="filter-title">DIRECTOR O ACTOR</h3>
                     <div className="search-container">
                         <input
                             type="text"
@@ -151,7 +151,7 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                                 if (filters.person) onFiltersChange({ ...filters, person: undefined });
                                 setPersonSearch(e.target.value);
                             }}
-                            className="filter-input"
+                            className="filter-search-input"
                         />
                         <AnimatePresence>
                             {searchResults.length > 0 && !filters.person && (
