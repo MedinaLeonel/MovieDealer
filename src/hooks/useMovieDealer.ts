@@ -238,7 +238,12 @@ export function useMovieDealer() {
                     popularity: m.popularity,
                     vote_count: m.vote_count,
                     genre: m.genre_ids?.map(String) || [],
-                    media_type: 'movie' as const // Explicitly set for all movies from discover/movie endpoint
+                    media_type: 'movie' as const,
+                    // Required props for stricter type compliance
+                    release_date: m.release_date || '',
+                    vote_average: m.vote_average || 0,
+                    genre_ids: m.genre_ids || [],
+                    genres: []
                 }));
         } catch (err) {
             console.error('Fetch error:', err);
@@ -421,7 +426,12 @@ export function useMovieDealer() {
                         overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos. Intenta relajar los filtros para la próxima partida.",
                         isMystery: true,
                         mysteryText: "JOYA DEL DEALER",
-                        media_type: 'movie'
+                        media_type: 'movie',
+                        release_date: "????",
+                        vote_average: 0,
+                        vote_count: 0,
+                        genre_ids: [],
+                        genres: []
                     });
                 }
             }
@@ -586,7 +596,12 @@ export function useMovieDealer() {
                 overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos.",
                 isMystery: true,
                 mysteryText: "JOYA DEL DEALER",
-                media_type: 'movie'
+                media_type: 'movie',
+                release_date: "???",
+                vote_average: 0,
+                vote_count: 0,
+                genre_ids: [],
+                genres: []
             });
         }
 
@@ -629,7 +644,12 @@ export function useMovieDealer() {
                     overview: "El Dealer quemó una carta débil y sacó este comodín para mantener el juego vivo.",
                     isMystery: true,
                     mysteryText: "COMODÍN",
-                    media_type: 'movie'
+                    media_type: 'movie',
+                    release_date: "2026-01-01",
+                    vote_average: 9.9,
+                    vote_count: 1000,
+                    genre_ids: [],
+                    genres: []
                 }];
             }
 
