@@ -12,6 +12,37 @@
     border: 1px solid transparent;
 }
 
+/* Responsive adjustments */
+@media (max-width: 390px) {
+    .movie-card {
+        width: calc(50vw - 16px);
+        height: calc((50vw - 16px) * 1.5);
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-card {
+        width: calc(33.333vw - 16px);
+        height: calc((33.333vw - 16px) * 1.5);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .movie-card {
+        width: calc(25vw - 16px);
+        max-width: 180px;
+        height: calc((25vw - 16px) * 1.5);
+        max-height: 270px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .movie-card {
+        width: 200px;
+        height: 300px;
+    }
+}
+
 .movie-card:hover {
     transform: translateY(-12px) scale(1.05);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
