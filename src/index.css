@@ -265,9 +265,19 @@ button:not(:disabled):hover {
     border-bottom: 1px solid var(--glass-border);
     z-index: 1001;
     min-height: 60px;
-    flex-wrap: wrap;
-    /* Allow wrapping if too tight */
+    flex-wrap: wrap; /* Allow wrapping if too tight */
     gap: 0.5rem;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .app-header {
+        padding: 0.5rem 0.75rem;
+        /* More compact */
+        justify-content: space-around;
+        height: 100dvh;
+        overflow: hidden;
+    }
 }
 
 .header-main {
