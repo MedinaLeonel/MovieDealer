@@ -29,11 +29,15 @@ body {
     width: 100%;
     max-width: 100%; /* Ensure no overflow */
     overflow-x: auto; /* Allow horizontal scrolling when needed */
+    overflow-y: auto; /* Enable vertical scrolling */
     display: flex;
     justify-content: center;
     align-items: flex-start;
     font-size: var(--font-size-md);
     line-height: 1.5;
+    /* Enable smooth scrolling for mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 /* Responsive Typography */
