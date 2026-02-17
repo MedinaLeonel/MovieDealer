@@ -360,7 +360,6 @@ button:not(:disabled):hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: auto;
     overscroll-behavior: contain;
     padding: 1rem 1rem 100px;
     scrollbar-width: none;
