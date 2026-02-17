@@ -13,6 +13,11 @@ export function StreamingModal() {
   const [hasDuration, setHasDuration] = useState(false);
   const [fallbackTimeout, setFallbackTimeout] = useState<number | null>(null);
 
+  // Control body scroll based on streaming modal state
+  useEffect(() => {
+    document.body.style.overflow = state.isOpen ? 'hidden' : 'auto';
+  }, [state.isOpen]);
+
   // Safety timeout to hide loader after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
