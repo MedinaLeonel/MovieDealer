@@ -15,6 +15,7 @@ export interface Movie {
     imdb_id?: string;
     isMystery?: boolean;
     mysteryText?: string;
+    media_type: 'movie' | 'tv'; // Required for streaming
 }
 
 export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'revealing' | 'won';

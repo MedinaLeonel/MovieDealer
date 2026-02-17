@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Movie } from '../lib/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WatchProviders } from './WatchProviders';
+import { useStreaming } from '../context/StreamingContext';
 import './MovieCard.css';
 
 interface MovieCardProps {
@@ -14,6 +15,13 @@ interface MovieCardProps {
 export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProps) {
     const [imgLoaded, setImgLoaded] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const { openStream } = useStreaming();
+
+    // Function to detect media type
+    const getMediaType = (): 'movie' | 'tv' => {
+        // Use the explicit media_type property from the Movie interface
+        return movie.media_type;
+    };
 
     const handleCardClick = () => {
         if (disabled) return;
@@ -36,6 +44,13 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
         e.stopPropagation();
         if (!selected) onToggle(movie.id); // Select it (conserve)
         setIsExpanded(false);
+    };
+
+    const handleStreamNow = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (disabled) return;
+        const mediaType = getMediaType();
+        openStream(movie.id, mediaType);
     };
 
     return (
@@ -154,6 +169,13 @@ export function MovieCard({ movie, selected, onToggle, disabled }: MovieCardProp
                                     onClick={(e) => { e.stopPropagation(); window.open(`https://www.youtube.com/results?search_query=${movie.title}+trailer`, '_blank'); }}
                                 >
                                     Ver Trailer ▶
+                                </motion.button>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    className="btn-primary expanded-stream-btn"
+                                    onClick={handleStreamNow}
+                                >
+                                    Ver Ahora 🎬
                                 </motion.button>
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}

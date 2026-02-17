@@ -237,7 +237,8 @@ export function useMovieDealer() {
                     overview: m.overview,
                     popularity: m.popularity,
                     vote_count: m.vote_count,
-                    genre: m.genre_ids?.map(String) || []
+                    genre: m.genre_ids?.map(String) || [],
+                    media_type: 'movie' as const // Explicitly set for all movies from discover/movie endpoint
                 }));
         } catch (err) {
             console.error('Fetch error:', err);
@@ -367,7 +368,8 @@ export function useMovieDealer() {
                             overview: m.overview,
                             genre: m.genres?.map((g: any) => String(g.id)) || [],
                             isMystery: true, // Se inyecta como "Mystery Card de Clásico"
-                            mysteryText: "TESORO DE LA CINETECA"
+                            mysteryText: "TESORO DE LA CINETECA",
+                            media_type: 'movie'
                         };
                     }
                     return null;
@@ -418,7 +420,8 @@ export function useMovieDealer() {
                         genre: [],
                         overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos. Intenta relajar los filtros para la próxima partida.",
                         isMystery: true,
-                        mysteryText: "JOYA DEL DEALER"
+                        mysteryText: "JOYA DEL DEALER",
+                        media_type: 'movie'
                     });
                 }
             }
@@ -582,7 +585,8 @@ export function useMovieDealer() {
                 genre: [],
                 overview: "El Dealer no encontró esa combinación, pero tiene estas joyas para vos.",
                 isMystery: true,
-                mysteryText: "JOYA DEL DEALER"
+                mysteryText: "JOYA DEL DEALER",
+                media_type: 'movie'
             });
         }
 
@@ -624,7 +628,8 @@ export function useMovieDealer() {
                     genre: [],
                     overview: "El Dealer quemó una carta débil y sacó este comodín para mantener el juego vivo.",
                     isMystery: true,
-                    mysteryText: "COMODÍN"
+                    mysteryText: "COMODÍN",
+                    media_type: 'movie'
                 }];
             }
 

@@ -6,6 +6,8 @@ import { AdSlot } from './components/ui/AdSlot';
 import { DifficultySelector } from './components/ui/DifficultySelector';
 import { Header } from './components/Header';
 import { Tooltip } from './components/ui/Tooltip';
+import { StreamingProvider } from './context/StreamingContext';
+import { StreamingModal } from './components/StreamingModal';
 
 import { FilterMenu } from './components/FilterMenu';
 
@@ -257,52 +259,55 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      {!introDone && (
-        <CinematicIntro onComplete={() => setIntroDone(true)} />
-      )}
+    <StreamingProvider>
+      <div className="app-container">
+        {!introDone && (
+          <CinematicIntro onComplete={() => setIntroDone(true)} />
+        )}
 
-      <motion.div
-        className="app-content"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: introDone ? 1 : 0 }}
-        transition={{
-          duration: 0.8,
-          ease: [0.22, 1, 0.36, 1],
-          delay: introDone ? 0 : 0,
-        }}
-        style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, pointerEvents: introDone ? 'auto' : 'none' }}
-      >
-        <Header
-          tokensDisplay={tokensDisplay}
-          streak={streak}
-          onReset={resetGame}
+        <motion.div
+          className="app-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: introDone ? 1 : 0 }}
+          transition={{
+            duration: 0.8,
+            ease: [0.22, 1, 0.36, 1],
+            delay: introDone ? 0 : 0,
+          }}
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, pointerEvents: introDone ? 'auto' : 'none' }}
+        >
+          <Header
+            tokensDisplay={tokensDisplay}
+            streak={streak}
+            onReset={resetGame}
+          />
+
+          <main className="game-board">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={gameState}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.05 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                style={{ width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
+          </main>
+
+          <Footer />
+        </motion.div>
+
+        <Onboarding
+          isOpen={showOnboarding}
+          onClose={() => setShowOnboarding(false)}
         />
-
-        <main className="game-board">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={gameState}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              style={{ width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-
-        <Footer />
-      </motion.div>
-
-      <Onboarding
-        isOpen={showOnboarding}
-        onClose={() => setShowOnboarding(false)}
-      />
-      <ToastFeed />
-    </div>
+        <ToastFeed />
+        <StreamingModal />
+      </div>
+    </StreamingProvider>
   );
 }
 

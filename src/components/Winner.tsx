@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Movie } from '../lib/types';
 import { WatchProviders } from './WatchProviders';
+import { useStreaming } from '../context/StreamingContext';
 import { motion } from 'framer-motion';
 import './Winner.css';
 
@@ -13,6 +14,7 @@ interface WinnerProps {
 export function Winner({ movie, hand, onReset }: WinnerProps) {
     const [runtime, setRuntime] = useState<number | null>(null);
     const [showContent, setShowContent] = useState(false);
+    const { openStream, openDealerCinemaMode } = useStreaming();
 
     useEffect(() => {
         // En v0.2.2 forzamos experiencia single-screen sin scroll global
@@ -22,6 +24,24 @@ export function Winner({ movie, hand, onReset }: WinnerProps) {
     }, []);
 
     const others = hand.filter(m => m.id !== movie.id);
+
+    const handleStreamNow = () => {
+        // Ensure media_type is set before calling openStream
+        if (movie.media_type) {
+            openStream(movie.id, movie.media_type);
+        } else {
+            console.error('Winner: movie.media_type is missing', movie);
+        }
+    };
+
+    const handleDealerCinemaMode = () => {
+        // Ensure media_type is set before calling openDealerCinemaMode
+        if (movie.media_type) {
+            openDealerCinemaMode(movie.id, movie.media_type);
+        } else {
+            console.error('Winner: movie.media_type is missing for Dealer Cinema Mode', movie);
+        }
+    };
 
     return (
         <div className={`winner-view ${showContent ? 'is-active' : ''}`}>
@@ -115,6 +135,12 @@ export function Winner({ movie, hand, onReset }: WinnerProps) {
                     <div className="cta-grid">
                         <button className="btn-primary" onClick={() => window.open(`https://www.youtube.com/results?search_query=${movie.title}+trailer`, '_blank')}>
                             TRAILER ▶
+                        </button>
+                        <button className="btn-primary" onClick={handleStreamNow}>
+                            VER AHORA 🎬
+                        </button>
+                        <button className="btn-primary dealer-cinema-btn" onClick={handleDealerCinemaMode}>
+                            🎬 Watch Dealer Pick
                         </button>
                         <button className="btn-secondary" onClick={onReset}>
                             VOLVER
