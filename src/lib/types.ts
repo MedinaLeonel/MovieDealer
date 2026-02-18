@@ -43,6 +43,8 @@ export interface FilterSettings {
   minRating?: number;
   genresToFollow?: string[];
   genresToExclude?: string[];
+  poolSize?: 60 | 120 | 200;
+  moodMode?: 'adventure' | 'chill' | 'purist';
 }
 
 export type GameState = 'idle' | 'configuring' | 'dealing' | 'playing' | 'revealing' | 'won';

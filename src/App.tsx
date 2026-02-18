@@ -45,7 +45,9 @@ function App() {
     dealHand,
     swapCards,
     stand,
-    resetGame
+    resetGame,
+    loadingProgress,
+    clearHistory
   } = useMovieDealer();
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -148,13 +150,28 @@ function App() {
             onFiltersChange={setFilters}
             onConfirm={handleDeal}
             onBack={resetGame}
+            onResetProfile={clearHistory}
           />
         );
 
       case 'dealing':
         return (
           <div className="loading-state">
-            <div className="dealer-spinner">🃏</div>
+            {loadingProgress ? (
+              <div className="discovery-progress-wrapper">
+                <div className="discovery-progress-track">
+                  <motion.div
+                    className="discovery-progress-fill"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(loadingProgress.current / loadingProgress.total) * 100}%` }}
+                  />
+                </div>
+                <p className="discovery-text">
+                  EXPLORANDO CINE-ESPACIO... {loadingProgress.current}/{loadingProgress.total} PAGINAS
+                </p>
+              </div>
+            ) : null}
+            <div className={`dealer-spinner ${loadingProgress ? 'pulsing' : ''}`}>🃏</div>
             <p>El Dealer está barajando...</p>
             {error && <div className="error-message">{error}</div>}
           </div>

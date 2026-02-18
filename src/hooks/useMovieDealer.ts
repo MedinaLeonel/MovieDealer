@@ -15,6 +15,7 @@ export function useMovieDealer() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [burnMessage, setBurnMessage] = useState<string | null>(null);
+    const [loadingProgress, setLoadingProgress] = useState<{ current: number; total: number } | null>(null);
 
     // History and Profile
     const [seenMovieIds, setSeenMovieIds] = useState<number[]>([]);
@@ -79,10 +80,28 @@ export function useMovieDealer() {
 
     const saveSeenToStorage = useCallback((ids: number[]) => {
         setSeenMovieIds(prev => {
-            const updated = Array.from(new Set([...prev, ...ids])).slice(-500); // Aumentamos historial para v0.2.0
+            const updated = Array.from(new Set([...prev, ...ids])).slice(-500);
             localStorage.setItem('movieDealerSeen', JSON.stringify(updated));
             return updated;
         });
+    }, []);
+
+    const clearHistory = useCallback(() => {
+        setSeenMovieIds([]);
+        setUserStats({ winningGenres: {} });
+        setSessionPreferences({
+            desiredGenres: {},
+            vetoedGenres: {},
+            avgRating: 0,
+            avgYear: 0,
+            totalKept: 0,
+            totalDiscarded: 0
+        });
+        localStorage.removeItem('movieDealerSeen');
+        localStorage.removeItem('movieDealerStats');
+        localStorage.removeItem('movieDealerUserProfile'); // Future proofing
+        setBurnMessage("Historial borrado: Tabula Rasa.");
+        setTimeout(() => setBurnMessage(null), 3000);
     }, []);
 
     const updateWinningStats = useCallback((movie: Movie) => {
@@ -107,7 +126,14 @@ export function useMovieDealer() {
         let url = `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=es-ES&include_adult=false`;
 
         // Especificaciones del algoritmo v0.2.0
-        if (gameFilters.person) {
+        // MOOD MODE OVERRIDES (v1.0 Deep Discovery)
+        if (gameFilters.moodMode === 'chill') {
+            // Chill: Prioritize popularity and easy watching
+            url += '&vote_count.gte=5000&sort_by=popularity.desc';
+        } else if (gameFilters.moodMode === 'purist') {
+            // Purist: High Quality (>8.0) and Classic (Pre-2000)
+            url += '&vote_average.gte=8.0&vote_count.gte=500&primary_release_date.lte=1999-12-31&sort_by=vote_average.desc';
+        } else if (gameFilters.person) {
             // Priority Selection: Only apply basic quality soil to avoid garbage, 
             // but let the person's filmography breathe.
             url += '&sort_by=popularity.desc';
@@ -117,13 +143,13 @@ export function useMovieDealer() {
                 url += '&vote_count.gte=50';
             }
         } else if (level <= 2) {
-            // Modo Chill: Hits masivos
+            // Modo Chill (Default)
             url += '&vote_count.gte=8000&sort_by=popularity.desc';
         } else if (level <= 4) {
-            // Modo Sorpréndeme: Calidad con Factor Rareza (v0.3.5: Suelo de votos)
+            // Modo Sorpréndeme (Default)
             url += '&vote_average.gte=7.0&popularity.lte=800&vote_count.gte=500&sort_by=vote_average.desc';
         } else {
-            // Modo Leyenda: Foco en Clásicos y Culto (v0.3.5: Calidad Oro)
+            // Modo Leyenda (Default)
             url += '&vote_average.gte=8.0&vote_count.gte=1000&primary_release_date.lte=1995-01-01&sort_by=vote_average.desc';
         }
 
@@ -173,13 +199,26 @@ export function useMovieDealer() {
         try {
             // v0.6.0: Fetch 10 pages in parallel for deep discovery (~200 movies instead of ~60)
             const randomStartPage = Math.floor(Math.random() * 5) + 1; // Start from page 1-5
-            const numPages = 10; // Fetch 10 consecutive pages
+
+            // v1.0: Dynamic Pool Size
+            const targetPoolSize = gameFilters.poolSize || 120;
+            const numPages = Math.ceil(targetPoolSize / 20);
+
+            setLoadingProgress({ current: 0, total: numPages });
+
             const pagePromises = Array.from({ length: numPages }, (_, i) =>
                 fetch(`${url}&page=${randomStartPage + i}`)
             );
 
+            // Simulate progress (since Promise.all is all-or-nothing, we use a fake interval or just assume strict completion)
+            // For better UX, we could wrap each fetch to update progress, but for now we set it.
+
             console.log(`[Deep Discovery] Fetching ${numPages} pages starting from page ${randomStartPage}...`);
-            const responses = await Promise.all(pagePromises);
+            const responses = await Promise.all(pagePromises.map(async p => {
+                const res = await p;
+                setLoadingProgress(prev => prev ? { ...prev, current: prev.current + 1 } : { current: 1, total: numPages });
+                return res;
+            }));
 
             // Check if all responses are ok
             for (const response of responses) {
@@ -519,11 +558,16 @@ export function useMovieDealer() {
             .map(([id]) => id)
             .filter(id => !desiredGenreIds.includes(id)); // Don't veto if also desired
 
+        // v1.0 Mood Mode: Adventure reduces preference weight
+        const applyAdventureChaos = filters.moodMode === 'adventure';
+        const finalDesiredGenres = applyAdventureChaos && Math.random() > 0.5 ? [] : desiredGenreIds;
+
         console.log('[v0.5.0 Learning]', {
-            desired: desiredGenreIds,
+            desired: finalDesiredGenres,
             vetoed: vetoedGenreIds,
             avgRating: currentPrefs.avgRating.toFixed(1),
-            avgYear: Math.round(currentPrefs.avgYear)
+            avgYear: Math.round(currentPrefs.avgYear),
+            mood: filters.moodMode
         });
 
         const handIds = new Set(keptCards.map(m => m.id));
@@ -565,7 +609,7 @@ export function useMovieDealer() {
             try {
                 const adaptiveFilters: FilterSettings = {
                     ...filters,
-                    genresToFollow: desiredGenreIds.length > 0 ? desiredGenreIds : undefined,
+                    genresToFollow: finalDesiredGenres.length > 0 ? finalDesiredGenres : undefined,
                     genresToExclude: vetoedGenreIds.length > 0 ? vetoedGenreIds : undefined,
                 };
                 const freshMovies = await fetchMoviesByDifficulty(difficulty, adaptiveFilters, '&page=2');
@@ -583,7 +627,7 @@ export function useMovieDealer() {
                 const relaxedFilters: FilterSettings = {
                     ...filters,
                     decades: [], // Relax date
-                    genresToFollow: desiredGenreIds.length > 0 ? desiredGenreIds : undefined,
+                    genresToFollow: finalDesiredGenres.length > 0 ? finalDesiredGenres : undefined,
                     genresToExclude: vetoedGenreIds.length > 0 ? vetoedGenreIds : undefined,
                 };
                 const emergencyMovies = await fetchMoviesByDifficulty(difficulty, relaxedFilters, '&page=4');
@@ -722,7 +766,9 @@ export function useMovieDealer() {
         swapCards,
         stand,
         resetGame,
-        discarded
+        discarded,
+        loadingProgress,
+        clearHistory
     };
 }
 

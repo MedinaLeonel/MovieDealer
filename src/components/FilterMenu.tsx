@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tooltip } from './ui/Tooltip';
 import type { FilterSettings } from '../lib/types';
 import './FilterMenu.css';
 
@@ -8,6 +9,7 @@ interface FilterMenuProps {
     onFiltersChange: (filters: FilterSettings) => void;
     onConfirm: () => void;
     onBack: () => void;
+    onResetProfile: () => void;
 }
 
 const GENRES = [
@@ -45,7 +47,7 @@ const DECADES = [
     { id: '1930', name: '30s' },
 ];
 
-export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: FilterMenuProps) {
+export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack, onResetProfile }: FilterMenuProps) {
     const [personSearch, setPersonSearch] = useState('');
     const [searchResults, setSearchResults] = useState<{ id: number; name: string; known_for_department: string }[]>([]);
 
@@ -138,6 +140,77 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                 <motion.section
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="filter-section"
+                >
+                    <h3 className="filter-title">TAMAÑO DEL POOL</h3>
+                    <div className="pool-slider-container">
+                        <input
+                            type="range"
+                            min="60"
+                            max="200"
+                            step="null" // We handle discrete values manually or just use range with list
+                            list="pool-sizes"
+                            value={filters.poolSize || 120}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                // Snap to closest
+                                let snapped = 120;
+                                if (val < 90) snapped = 60;
+                                else if (val > 160) snapped = 200;
+                                else snapped = 120;
+                                onFiltersChange({ ...filters, poolSize: snapped as 60 | 120 | 200 });
+                            }}
+                            className="pool-slider"
+                        />
+                        <datalist id="pool-sizes">
+                            <option value="60"></option>
+                            <option value="120"></option>
+                            <option value="200"></option>
+                        </datalist>
+                        <div className="pool-labels">
+                            <span className={filters.poolSize === 60 ? 'active' : ''}>60 (Rápido)</span>
+                            <span className={filters.poolSize === 120 || !filters.poolSize ? 'active' : ''}>120 (Equilibrado)</span>
+                            <span className={filters.poolSize === 200 ? 'active' : ''}>200 (Deep)</span>
+                        </div>
+                        <p className="pool-description">
+                            {filters.poolSize === 60 && "Partida rápida, hits garantizados."}
+                            {(filters.poolSize === 120 || !filters.poolSize) && "Exploración equilibrada."}
+                            {filters.poolSize === 200 && "Experiencia cinematográfica total (requiere carga)."}
+                        </p>
+                    </div>
+                </motion.section>
+
+                <motion.section
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="filter-section"
+                >
+                    <h3 className="filter-title">MOOD MODE</h3>
+                    <div className="mood-grid">
+                        {[
+                            { id: 'adventure', label: 'Aventura', icon: '🎲', desc: "El Dealer prioriza la sorpresa sobre tus gustos." },
+                            { id: 'chill', label: 'Chill', icon: '🍿', desc: "Relájate con títulos populares y fáciles de disfrutar." },
+                            { id: 'purist', label: 'Purista', icon: '✒️', desc: "Cine de culto, clásicos y joyas críticas." }
+                        ].map((m) => (
+                            <Tooltip key={m.id} text={m.desc} position="top">
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    className={`mood-card ${filters.moodMode === m.id ? 'active' : ''}`}
+                                    onClick={() => onFiltersChange({ ...filters, moodMode: m.id as any })}
+                                >
+                                    <span className="mood-icon">{m.icon}</span>
+                                    <span className="mood-label">{m.label}</span>
+                                </motion.button>
+                            </Tooltip>
+                        ))}
+                    </div>
+                </motion.section>
+
+                <motion.section
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
                     className="filter-section"
                 >
@@ -203,6 +276,20 @@ export function FilterMenu({ filters, onFiltersChange, onConfirm, onBack }: Filt
                     REPARTIR
                 </motion.button>
             </div>
+
+            <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                whileHover={{ opacity: 1 }}
+                className="reset-profile-btn"
+                onClick={() => {
+                    if (window.confirm("¿Estás seguro? Esto borrará todo tu historial de películas vistas y aprendizaje del Dealer.")) {
+                        onResetProfile();
+                    }
+                }}
+            >
+                ↻ Reset Dealer Memory
+            </motion.button>
         </div>
     );
 }
